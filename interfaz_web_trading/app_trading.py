@@ -2,7 +2,7 @@
 import os
 import sys
 from flask import Flask, render_template, request, flash, redirect, url_for
-from datetime import datetime
+from datetime import datetime # <--- IMPORTAR DATETIME
 
 # --- Modificación para permitir la ejecución desde la raíz del proyecto ---
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -17,15 +17,14 @@ from agentes.agente_senales_trading import AgenteSenalesTrading
 from rdflib.namespace import RDF, XSD # Para tipos y URIs
 
 # --- Inicialización de Flask y componentes ---
-app = Flask(__name__, template_folder='templates', static_folder='../static_trading') # Ajustar static_folder
+app = Flask(__name__, template_folder='templates', static_folder='../static_trading') 
 app.secret_key = os.urandom(24)
 
 # Rutas a los archivos de datos (relativas al directorio raíz del proyecto)
 ONTOLOGIA_PATH = os.path.join(project_root_dir, 'datos_trading', 'ontologia_trading.ttl')
 DATOS_MUESTRA_PATH = os.path.join(project_root_dir, 'datos_trading', 'datos_trading_muestra.ttl')
-DATOS_PERSIST_PATH = os.path.join(project_root_dir, 'datos_trading', 'datos_actualizados.ttl') # Usará este para guardar
+DATOS_PERSIST_PATH = os.path.join(project_root_dir, 'datos_trading', 'datos_actualizados.ttl') 
 
-# Instanciar RDFManager y los agentes
 try:
     rdf_manager = RDFManagerTrading(
         ontologia_path=ONTOLOGIA_PATH,
@@ -41,27 +40,34 @@ except Exception as e:
     agente_estrategia = None
     agente_senales = None
 
-# Pares de mercado disponibles (podrían obtenerse del grafo RDF)
-# Por ahora, los definimos aquí para el selector. El ID local es la clave.
 PARES_MERCADO_DEMO = {
     "WLD_USDT": "WLD/USDT",
     "BTC_USDT": "BTC/USDT"
 }
 DEFAULT_PAR_MERCADO_ID = "WLD_USDT"
 
+# --- AÑADIR ESTE PROCESADOR DE CONTEXTO ---
+@app.context_processor
+def inject_global_vars():
+    return dict(
+        current_year=datetime.utcnow().year,
+        pares_mercado_demo=PARES_MERCADO_DEMO,
+        par_mercado_actual_id=get_current_par_mercado_id() # get_current_par_mercado_id ya existe
+    )
+# --- FIN DEL PROCESADOR DE CONTEXTO ---
+
 def get_current_par_mercado_id():
     return request.args.get("par_mercado", DEFAULT_PAR_MERCADO_ID)
 
-@app.context_processor
-def inject_pares_mercado():
-    return dict(
-        pares_mercado_demo=PARES_MERCADO_DEMO,
-        par_mercado_actual_id=get_current_par_mercado_id()
-    )
+# @app.context_processor # <- ESTO YA NO ES NECESARIO AQUÍ, SE MOVIÓ ARRIBA
+# def inject_pares_mercado():
+# return dict(
+# pares_mercado_demo=PARES_MERCADO_DEMO,
+# par_mercado_actual_id=get_current_par_mercado_id()
+# )
 
 @app.route('/')
 def index_redirect():
-    # Redirigir al dashboard del par por defecto
     return redirect(url_for('dashboard_par', par_mercado_id_local=DEFAULT_PAR_MERCADO_ID))
 
 @app.route('/dashboard/<par_mercado_id_local>')
@@ -79,11 +85,10 @@ def dashboard_par(par_mercado_id_local):
         "precio_actual": "N/A",
         "volumen24h": "N/A",
         "ultima_actualizacion_precio": "N/A",
-        "valores_indicadores": [], # Lista de dicts
-        "ultima_recomendacion": None # Dict con detalles de la recomendación
+        "valores_indicadores": [], 
+        "ultima_recomendacion": None 
     }
 
-    # 1. Obtener precio actual y volumen del par desde RDF
     q_par_info = f"""
         PREFIX trade: <{rdf_manager.ns_manager.trade}>
         SELECT ?precio ?volumen
@@ -97,11 +102,8 @@ def dashboard_par(par_mercado_id_local):
         for fila in res_par_info:
             datos_dashboard["precio_actual"] = f"{float(fila['precio']):.4f}" if fila.get("precio") else "N/A"
             datos_dashboard["volumen24h"] = f"{float(fila['volumen']):,.2f}" if fila.get("volumen") else "N/A"
-            datos_dashboard["ultima_actualizacion_precio"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Simulado, idealmente vendría del timestamp del precio
+            datos_dashboard["ultima_actualizacion_precio"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
     
-    # 2. Obtener los últimos valores de indicadores para este par
-    # Esta consulta asume que los valores de indicadores tienen un timestamp y queremos los más recientes
-    # para cada tipo de configuración de indicador.
     q_valores_indicadores = f"""
         PREFIX trade: <{rdf_manager.ns_manager.trade}>
         PREFIX rdf: <{RDF}>
@@ -124,14 +126,13 @@ def dashboard_par(par_mercado_id_local):
             OPTIONAL {{ ?valorIndInst trade:valorBandaInferior ?valorBandaInferior . }}
         }} 
         ORDER BY DESC(?ts) ?configNombre 
-        # LIMIT podría ser útil si hay muchos indicadores, o agrupar por configNombre y tomar el MAX(?ts)
     """
     res_valores_ind = rdf_manager.ejecutar_sparql(q_valores_indicadores)
-    indicadores_procesados = {} # Para mostrar solo el más reciente de cada tipo
+    indicadores_procesados = {} 
     if res_valores_ind:
         for fila_ind in res_valores_ind:
             nombre_conf = str(fila_ind["configNombre"])
-            if nombre_conf not in indicadores_procesados: # Solo tomar el más reciente
+            if nombre_conf not in indicadores_procesados: 
                 indicador_display = {"nombre": nombre_conf, "valores": [], "ts": str(fila_ind["ts"])}
                 if fila_ind.get("valorNum") is not None:
                     indicador_display["valores"].append(f"Valor: {float(fila_ind['valorNum']):.4f}")
@@ -148,12 +149,10 @@ def dashboard_par(par_mercado_id_local):
                 if fila_ind.get("valorBandaInferior") is not None:
                     indicador_display["valores"].append(f"Banda Inf.: {float(fila_ind['valorBandaInferior']):.4f}")
                 
-                if indicador_display["valores"]: # Solo añadir si tiene algún valor
+                if indicador_display["valores"]: 
                     datos_dashboard["valores_indicadores"].append(indicador_display)
                     indicadores_procesados[nombre_conf] = True
 
-
-    # 3. Obtener la última recomendación para este par
     q_ultima_recomendacion = f"""
         PREFIX trade: <{rdf_manager.ns_manager.trade}>
         PREFIX rdf: <{RDF}>
@@ -177,7 +176,7 @@ def dashboard_par(par_mercado_id_local):
     """
     res_recom = rdf_manager.ejecutar_sparql(q_ultima_recomendacion)
     if res_recom:
-        for fila_recom in res_recom: # Debería ser solo una
+        for fila_recom in res_recom: 
             datos_dashboard["ultima_recomendacion"] = {
                 "accion": str(fila_recom["accion"]),
                 "justificacion": str(fila_recom["justificacion"]),
@@ -185,7 +184,7 @@ def dashboard_par(par_mercado_id_local):
                 "timestamp": str(fila_recom["ts"]),
                 "senales_base": str(fila_recom.get("senalesDetalle", "N/A"))
             }
-            break # Solo la primera (más reciente)
+            break 
 
     return render_template('dashboard_trading.html', data=datos_dashboard)
 
@@ -196,24 +195,11 @@ def ejecutar_ciclo_agente():
         return redirect(request.referrer or url_for('index_redirect'))
 
     par_id_actual = get_current_par_mercado_id()
-    # Necesitamos el nombre de la estrategia. Asumimos una por defecto o podríamos pasarla.
-    # Por ahora, el agente usa "EstrategiaPredeterminada" si no se especifica otra.
-    # Podríamos obtener la estrategia asociada al par_id_actual si el modelo lo soporta.
-    
-    # Obtener la estrategia que monitorea el par actual
-    # Esto es un poco más complejo, necesitaríamos una consulta para encontrar la estrategia
-    # que tiene `trade:monitoreaPar` igual a `par_id_actual_uri`.
-    # Por simplicidad, vamos a asumir que la "EstrategiaPredeterminada" es para WLD_USDT
-    # y si se selecciona otro par, no ejecutamos o usamos una estrategia específica para ese par.
-    
     nombre_estrategia_a_ejecutar = None
     if par_id_actual == "WLD_USDT":
         nombre_estrategia_a_ejecutar = "EstrategiaPredeterminada"
     elif par_id_actual == "BTC_USDT":
-        # Podríamos tener una estrategia específica para BTC o crearla
-        # agente_estrategia.definir_o_actualizar_estrategia("EstrategiaBTC", ..., par_mercado_local="BTC_USDT", ...)
-        nombre_estrategia_a_ejecutar = "MiEstrategiaAgresivaBTC" # Asumiendo que esta existe y es para BTC
-        # Verificar si existe, si no, crearla o dar error
+        nombre_estrategia_a_ejecutar = "MiEstrategiaAgresivaBTC" 
         if not agente_estrategia.obtener_estrategia_activa(nombre_estrategia_a_ejecutar):
              agente_estrategia.definir_o_actualizar_estrategia(
                 nombre_estrategia_local=nombre_estrategia_a_ejecutar,
@@ -223,7 +209,6 @@ def ejecutar_ciclo_agente():
                 nivel_riesgo="ALTO",
                 horizonte_temporal="CORTO_PLAZO"
             )
-
 
     if nombre_estrategia_a_ejecutar:
         try:
@@ -238,23 +223,19 @@ def ejecutar_ciclo_agente():
 
     return redirect(url_for('dashboard_par', par_mercado_id_local=par_id_actual))
 
-
 @app.errorhandler(404)
 def pagina_no_encontrada(e):
     return render_template('error_page_trading.html', mensaje="Página no encontrada (404)."), 404
 
 @app.errorhandler(500)
 def error_interno_servidor(e):
-    print(f"Error 500: {e}") # Loguear el error
+    print(f"Error 500: {e}") 
     return render_template('error_page_trading.html', mensaje=f"Error interno del servidor (500): {e}"), 500
 
-# Este bloque es para ejecutar con `python interfaz_web_trading/app_trading.py`
-# El archivo `run_trading.py` en la raíz es el preferido.
 if __name__ == '__main__':
-    # Asegurarse que el directorio de datos exista para persistencia
     datos_dir = os.path.join(project_root_dir, 'datos_trading')
     if not os.path.exists(datos_dir):
         os.makedirs(datos_dir)
         print(f"Directorio '{datos_dir}' creado por app_trading.py.")
     
-    app.run(debug=True, port=5002) # Usar un puerto diferente para evitar colisiones
+    app.run(debug=True, port=5002)
