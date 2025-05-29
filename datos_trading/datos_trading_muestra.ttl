@@ -1,0 +1,148 @@
+@prefix : <http://www.example.org/trading#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# --- Tipos Base de Indicadores Técnicos ---
+:TipoSMA rdf:type :TipoIndicadorTecnico ;
+    rdfs:label "Simple Moving Average (SMA)" .
+:TipoRSI rdf:type :TipoIndicadorTecnico ;
+    rdfs:label "Relative Strength Index (RSI)" .
+:TipoMACD rdf:type :TipoIndicadorTecnico ;
+    rdfs:label "Moving Average Convergence Divergence (MACD)" .
+:TipoBandasBollinger rdf:type :TipoIndicadorTecnico ;
+    rdfs:label "Bollinger Bands" .
+:TipoVolumen rdf:type :TipoIndicadorTecnico;
+    rdfs:label "Volume Indicator".
+
+# --- Configuraciones Específicas de Indicadores ---
+:ConfigSMA20 rdf:type :IndicadorTecnicoConfig ;
+    :nombreConfigIndicador "SMA de 20 períodos" ;
+    :tieneTipoBase :TipoSMA ;
+    :periodoIndicador "20"^^xsd:integer .
+
+:ConfigSMA50 rdf:type :IndicadorTecnicoConfig ;
+    :nombreConfigIndicador "SMA de 50 períodos" ;
+    :tieneTipoBase :TipoSMA ;
+    :periodoIndicador "50"^^xsd:integer .
+
+:ConfigRSI14 rdf:type :IndicadorTecnicoConfig ;
+    :nombreConfigIndicador "RSI de 14 períodos" ;
+    :tieneTipoBase :TipoRSI ;
+    :periodoIndicador "14"^^xsd:integer .
+
+:ConfigMACD12_26_9 rdf:type :IndicadorTecnicoConfig ;
+    :nombreConfigIndicador "MACD (12, 26, 9)" ;
+    :tieneTipoBase :TipoMACD ;
+    :periodoCorto "12"^^xsd:integer ;
+    :periodoLargo "26"^^xsd:integer ;
+    :periodoSenal "9"^^xsd:integer .
+
+:ConfigBB20_2 rdf:type :IndicadorTecnicoConfig;
+    :nombreConfigIndicador "Bandas de Bollinger (20, 2)";
+    :tieneTipoBase :TipoBandasBollinger;
+    :periodoIndicador "20"^^xsd:integer;
+    :desviacionEstandar "2.0"^^xsd:decimal.
+
+# --- Criptomonedas ---
+:WLD rdf:type :Criptomoneda ;
+    :simboloCripto "WLD" ;
+    :nombreCompleto "Worldcoin" ;
+    :descripcionActivo "Una criptomoneda con el objetivo de crear una red financiera y de identidad global." .
+
+:BTC rdf:type :Criptomoneda ;
+    :simboloCripto "BTC" ;
+    :nombreCompleto "Bitcoin" ;
+    :descripcionActivo "La primera criptomoneda descentralizada." .
+
+:USDT rdf:type :Criptomoneda ; # Considerada Cripto (stablecoin) pero también puede ser :MonedaFiat
+     :simboloCripto "USDT" ;
+     :nombreCompleto "Tether" .
+
+# --- Pares de Mercado ---
+:WLD_USDT rdf:type :ParMercado ;
+    :tieneActivoBase :WLD ;
+    :tieneActivoCotizacion :USDT ;
+    :precioActual "3.50"^^xsd:decimal ; # Precio de ejemplo
+    :volumen24h "15000000.00"^^xsd:decimal . # Volumen de ejemplo
+
+:BTC_USDT rdf:type :ParMercado ;
+    :tieneActivoBase :BTC ;
+    :tieneActivoCotizacion :USDT ;
+    :precioActual "60000.00"^^xsd:decimal ;
+    :volumen24h "2000000000.00"^^xsd:decimal .
+
+# --- Estrategia de Ejemplo ---
+:EstrategiaPredeterminada rdf:type :Estrategia ;
+    :nombreEstrategia "Estrategia Conservadora WLD" ;
+    :monitoreaPar :WLD_USDT ;
+    :utilizaConfigIndicador :ConfigSMA20, :ConfigRSI14, :ConfigMACD12_26_9, :ConfigBB20_2 ;
+    :nivelRiesgoPreferido "MEDIO" ;
+    :horizonteTemporal "CORTO_PLAZO" .
+
+# --- Agentes (Instancias) ---
+:AgenteEstrategiaPrincipal rdf:type :AgentePerfilEstrategia ;
+    :configuraEstrategia :EstrategiaPredeterminada .
+
+:AgenteSenalesPrincipal rdf:type :AgenteSenalesTrading .
+
+
+# --- Valores de Indicadores de Ejemplo para WLD_USDT (simulados) ---
+:ValorSMA20_WLD_Actual rdf:type :ValorIndicador ;
+    :esValorDe :ConfigSMA20 ;
+    :seAplicaA :WLD_USDT ;
+    :valorNumerico "3.45"^^xsd:decimal ;
+    :timestampValor "2025-05-29T10:00:00Z"^^xsd:dateTime .
+
+:ValorRSI14_WLD_Actual rdf:type :ValorIndicador ;
+    :esValorDe :ConfigRSI14 ;
+    :seAplicaA :WLD_USDT ;
+    :valorNumerico "35.0"^^xsd:decimal ; # Ligeramente sobrevendido
+    :timestampValor "2025-05-29T10:00:00Z"^^xsd:dateTime .
+
+:ValorMACD_WLD_Actual rdf:type :ValorIndicador;
+    :esValorDe :ConfigMACD12_26_9;
+    :seAplicaA :WLD_USDT;
+    :valorMACD "-0.05"^^xsd:decimal;
+    :valorSenalMACD "-0.08"^^xsd:decimal; # MACD cruzando por encima de la señal (alcista)
+    :valorHistogramaMACD "0.03"^^xsd:decimal;
+    :timestampValor "2025-05-29T10:00:00Z"^^xsd:dateTime.
+
+:ValorBB_WLD_Actual rdf:type :ValorIndicador;
+    :esValorDe :ConfigBB20_2;
+    :seAplicaA :WLD_USDT;
+    :valorBandaSuperior "3.90"^^xsd:decimal;
+    :valorBandaMedia "3.50"^^xsd:decimal;    # Precio actual está en la banda media
+    :valorBandaInferior "3.10"^^xsd:decimal;
+    :timestampValor "2025-05-29T10:00:00Z"^^xsd:dateTime.
+
+
+# --- Señales Técnicas de Ejemplo (inferidas de los valores anteriores) ---
+:SenalRSI_WLD_1 rdf:type :SenalTecnica ;
+    :generadaPorIndicador :ValorRSI14_WLD_Actual ;
+    :referenteA :WLD_USDT ;
+    :tipoSENAL "RSI_NEUTRAL_BAJO" ;
+    :descripcionSenal "RSI para WLD/USDT está en 35.0, acercándose a sobreventa." ;
+    :fechaSenal "2025-05-29T10:01:00Z"^^xsd:dateTime ;
+    :fuerzaSenal "MODERADA" .
+
+:SenalMACD_WLD_1 rdf:type :SenalTecnica ;
+    :generadaPorIndicador :ValorMACD_WLD_Actual ;
+    :referenteA :WLD_USDT ;
+    :tipoSENAL "CRUCE_MACD_ALCISTA" ;
+    :descripcionSenal "Línea MACD (-0.05) cruzó por encima de la línea de señal (-0.08) para WLD/USDT." ;
+    :fechaSenal "2025-05-29T10:01:00Z"^^xsd:dateTime ;
+    :fuerzaSenal "MODERADA" .
+
+# --- Recomendación de Trading de Ejemplo (basada en las señales anteriores) ---
+:RecomendacionWLD_1 rdf:type :RecomendacionTrading ;
+    :paraActivo :WLD_USDT ;
+    :basadaEnEstrategia :EstrategiaPredeterminada ;
+    :accionSugerida "COMPRAR" ;
+    :justificacionDecision "Señales alcistas combinadas: RSI acercándose a sobreventa (35.0) y cruce alcista de MACD. Precio actual (3.50) cerca de SMA20 (3.45) y banda media de Bollinger (3.50), posible rebote." ;
+    :nivelConfianza "0.70"^^xsd:float ;
+    :precioSugeridoEntrada "3.50"^^xsd:decimal ;
+    :precioSugeridoStopLoss "3.30"^^xsd:decimal ;
+    :precioSugeridoTakeProfit "3.85"^^xsd:decimal ;
+    :timestampRecomendacion "2025-05-29T10:05:00Z"^^xsd:dateTime ;
+    :generadaPorAgente :AgenteSenalesPrincipal ;
+    :basadaEnSenal :SenalRSI_WLD_1, :SenalMACD_WLD_1 .

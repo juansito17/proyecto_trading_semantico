@@ -1,0 +1,224 @@
+@prefix : <http://www.example.org/trading#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://www.example.org/trading> rdf:type owl:Ontology ;
+                                 rdfs:comment "Ontología para un Asistente Semántico de Decisiones de Trading de Criptomonedas." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:tieneActivoBase rdf:type owl:ObjectProperty ;
+                 rdfs:domain :ParMercado ;
+                 rdfs:range :Criptomoneda .
+
+:tieneActivoCotizacion rdf:type owl:ObjectProperty ;
+                       rdfs:domain :ParMercado ;
+                       rdfs:range [ rdf:type owl:Class ;
+                                    owl:unionOf ( :Criptomoneda
+                                                  :MonedaFiat
+                                                )
+                                  ] .
+
+:esValorDe rdf:type owl:ObjectProperty ;
+           rdfs:domain :ValorIndicador ;
+           rdfs:range :IndicadorTecnicoConfig . # Un valor es de una configuración específica de indicador
+
+:seAplicaA rdf:type owl:ObjectProperty ;
+           rdfs:domain :ValorIndicador ;
+           rdfs:range :ParMercado .
+
+:generadaPorIndicador rdf:type owl:ObjectProperty ;
+                      rdfs:domain :SenalTecnica ;
+                      rdfs:range :ValorIndicador . # Una señal se basa en un valor de indicador
+
+:referenteA rdf:type owl:ObjectProperty ;
+            rdfs:domain :SenalTecnica ;
+            rdfs:range :ParMercado .
+
+:paraActivo rdf:type owl:ObjectProperty ;
+            rdfs:domain :RecomendacionTrading ;
+            rdfs:range :ParMercado .
+
+:basadaEnEstrategia rdf:type owl:ObjectProperty ;
+                     rdfs:domain :RecomendacionTrading ;
+                     rdfs:range :Estrategia .
+
+:basadaEnSenal rdf:type owl:ObjectProperty ;
+               rdfs:domain :RecomendacionTrading ;
+               rdfs:range :SenalTecnica .
+
+:basadaEnNoticia rdf:type owl:ObjectProperty ;
+                 rdfs:domain :RecomendacionTrading ;
+                 rdfs:range :EventoNoticia .
+
+:consideraSentimiento rdf:type owl:ObjectProperty ;
+                      rdfs:domain :RecomendacionTrading ;
+                      rdfs:range :SentimientoMercado .
+
+:generadaPorAgente rdf:type owl:ObjectProperty ;
+                   rdfs:domain :RecomendacionTrading ;
+                   rdfs:range :AgenteSenalesTrading .
+
+:monitoreaPar rdf:type owl:ObjectProperty ;
+              rdfs:domain :Estrategia ;
+              rdfs:range :ParMercado .
+
+:utilizaConfigIndicador rdf:type owl:ObjectProperty ; # Estrategia usa configuraciones de indicador
+                        rdfs:domain :Estrategia ;
+                        rdfs:range :IndicadorTecnicoConfig .
+
+:configuraEstrategia rdf:type owl:ObjectProperty ;
+                     rdfs:domain :AgentePerfilEstrategia ;
+                     rdfs:range :Estrategia .
+
+:tieneTipoBase rdf:type owl:ObjectProperty; # Una config de indicador tiene un tipo base (SMA, RSI)
+                rdfs:domain :IndicadorTecnicoConfig;
+                rdfs:range :TipoIndicadorTecnico.
+
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:simboloCripto rdf:type owl:DatatypeProperty ;
+               rdfs:domain :Criptomoneda ;
+               rdfs:range xsd:string .
+
+:nombreCompleto rdf:type owl:DatatypeProperty ;
+                rdfs:domain :Criptomoneda ;
+                rdfs:range xsd:string .
+
+:descripcionActivo rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :ActivoDigital ;
+                   rdfs:range xsd:string .
+
+:precioActual rdf:type owl:DatatypeProperty ;
+              rdfs:domain :ParMercado ;
+              rdfs:range xsd:decimal .
+
+:volumen24h rdf:type owl:DatatypeProperty ;
+            rdfs:domain :ParMercado ;
+            rdfs:range xsd:decimal .
+
+# Propiedades para IndicadorTecnicoConfig
+:nombreConfigIndicador rdf:type owl:DatatypeProperty;
+  rdfs:domain :IndicadorTecnicoConfig;
+  rdfs:range xsd:string.
+
+:periodoIndicador rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :IndicadorTecnicoConfig ; # Periodo es parte de la config
+                  rdfs:range xsd:integer .
+
+:periodoCorto rdf:type owl:DatatypeProperty ;
+               rdfs:domain :IndicadorTecnicoConfig ;
+               rdfs:range xsd:integer .
+
+:periodoLargo rdf:type owl:DatatypeProperty ;
+               rdfs:domain :IndicadorTecnicoConfig ;
+               rdfs:range xsd:integer .
+
+:periodoSenal rdf:type owl:DatatypeProperty ; # Para señal de MACD, por ejemplo
+              rdfs:domain :IndicadorTecnicoConfig ;
+              rdfs:range xsd:integer .
+
+:desviacionEstandar rdf:type owl:DatatypeProperty; # Para Bandas de Bollinger
+                    rdfs:domain :IndicadorTecnicoConfig;
+                    rdfs:range xsd:decimal.
+
+
+# Propiedades para ValorIndicador
+:valorNumerico rdf:type owl:DatatypeProperty ; # Valor principal (ej. RSI, SMA)
+               rdfs:domain :ValorIndicador ;
+               rdfs:range xsd:decimal .
+
+:timestampValor rdf:type owl:DatatypeProperty ;
+                rdfs:domain :ValorIndicador ;
+                rdfs:range xsd:dateTime .
+
+:valorMACD rdf:type owl:DatatypeProperty ; rdfs:domain :ValorIndicador ; rdfs:range xsd:decimal .
+:valorSenalMACD rdf:type owl:DatatypeProperty ; rdfs:domain :ValorIndicador ; rdfs:range xsd:decimal .
+:valorHistogramaMACD rdf:type owl:DatatypeProperty ; rdfs:domain :ValorIndicador ; rdfs:range xsd:decimal .
+:valorBandaSuperior rdf:type owl:DatatypeProperty ; rdfs:domain :ValorIndicador ; rdfs:range xsd:decimal .
+:valorBandaMedia rdf:type owl:DatatypeProperty ; rdfs:domain :ValorIndicador ; rdfs:range xsd:decimal .
+:valorBandaInferior rdf:type owl:DatatypeProperty ; rdfs:domain :ValorIndicador ; rdfs:range xsd:decimal .
+
+# Propiedades para SenalTecnica
+:tipoSENAL rdf:type owl:DatatypeProperty ; # Usar nombre diferente a rdf:type
+           rdfs:domain :SenalTecnica ;
+           rdfs:range xsd:string . # Ej. "SOBRECOMPRA_RSI", "CRUCE_ALCISTA_MACD"
+
+:descripcionSenal rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :SenalTecnica ;
+                  rdfs:range xsd:string .
+
+:fechaSenal rdf:type owl:DatatypeProperty ;
+            rdfs:domain :SenalTecnica ;
+            rdfs:range xsd:dateTime .
+
+:fuerzaSenal rdf:type owl:DatatypeProperty ;
+             rdfs:domain :SenalTecnica ;
+             rdfs:range xsd:string . # "DEBIL", "MODERADA", "FUERTE"
+
+# Propiedades para EventoNoticia
+:titularNoticia rdf:type owl:DatatypeProperty ; rdfs:domain :EventoNoticia ; rdfs:range xsd:string .
+:fuenteNoticia rdf:type owl:DatatypeProperty ; rdfs:domain :EventoNoticia ; rdfs:range xsd:string .
+:fechaNoticia rdf:type owl:DatatypeProperty ; rdfs:domain :EventoNoticia ; rdfs:range xsd:dateTime .
+:resumenNoticia rdf:type owl:DatatypeProperty ; rdfs:domain :EventoNoticia ; rdfs:range xsd:string .
+:sentimientoInferidoNoticia rdf:type owl:DatatypeProperty ; rdfs:domain :EventoNoticia ; rdfs:range xsd:string . # "POSITIVO", "NEGATIVO", "NEUTRAL"
+
+# Propiedades para SentimientoMercado
+:valorSentimiento rdf:type owl:DatatypeProperty ; rdfs:domain :SentimientoMercado ; rdfs:range xsd:string . # "ALCISTA", "BAJISTA", "NEUTRAL"
+:fuenteSentimiento rdf:type owl:DatatypeProperty ; rdfs:domain :SentimientoMercado ; rdfs:range xsd:string .
+:timestampSentimiento rdf:type owl:DatatypeProperty ; rdfs:domain :SentimientoMercado ; rdfs:range xsd:dateTime .
+
+# Propiedades para RecomendacionTrading
+:accionSugerida rdf:type owl:DatatypeProperty ;
+                rdfs:domain :RecomendacionTrading ;
+                rdfs:range xsd:string . # "COMPRAR", "VENDER", "MANTENER"
+
+:justificacionDecision rdf:type owl:DatatypeProperty ; rdfs:domain :RecomendacionTrading ; rdfs:range xsd:string .
+:nivelConfianza rdf:type owl:DatatypeProperty ; rdfs:domain :RecomendacionTrading ; rdfs:range xsd:float .
+:precioSugeridoEntrada rdf:type owl:DatatypeProperty ; rdfs:domain :RecomendacionTrading ; rdfs:range xsd:decimal .
+:precioSugeridoStopLoss rdf:type owl:DatatypeProperty ; rdfs:domain :RecomendacionTrading ; rdfs:range xsd:decimal .
+:precioSugeridoTakeProfit rdf:type owl:DatatypeProperty ; rdfs:domain :RecomendacionTrading ; rdfs:range xsd:decimal .
+:timestampRecomendacion rdf:type owl:DatatypeProperty ; rdfs:domain :RecomendacionTrading ; rdfs:range xsd:dateTime .
+
+# Propiedades para Estrategia
+:nombreEstrategia rdf:type owl:DatatypeProperty ; rdfs:domain :Estrategia ; rdfs:range xsd:string .
+:nivelRiesgoPreferido rdf:type owl:DatatypeProperty ; rdfs:domain :Estrategia ; rdfs:range xsd:string . # "BAJO", "MEDIO", "ALTO"
+:horizonteTemporal rdf:type owl:DatatypeProperty ; rdfs:domain :Estrategia ; rdfs:range xsd:string . # "CORTO_PLAZO", "MEDIO_PLAZO", "LARGO_PLAZO"
+
+#################################################################
+#    Classes
+#################################################################
+
+:ActivoDigital rdf:type owl:Class .
+:Criptomoneda rdf:type owl:Class ; rdfs:subClassOf :ActivoDigital .
+:MonedaFiat rdf:type owl:Class ; rdfs:subClassOf :ActivoDigital . # Para pares como USD, EUR
+
+:ParMercado rdf:type owl:Class .
+
+:TipoIndicadorTecnico rdf:type owl:Class. # Clase para los tipos base de indicadores: SMA, RSI, etc.
+  # Instancias de TipoIndicadorTecnico: :TipoSMA, :TipoRSI, :TipoMACD, :TipoBandasBollinger, :TipoVolumen
+
+:IndicadorTecnicoConfig rdf:type owl:Class. # Representa una configuración específica de un indicador (ej. SMA de 20 días)
+  # Esta clase tendrá propiedades como :periodoIndicador, :periodoCorto, etc.
+  # y una propiedad de objeto :tieneTipoBase que la enlaza a una instancia de :TipoIndicadorTecnico
+
+:ValorIndicador rdf:type owl:Class .
+:SenalTecnica rdf:type owl:Class .
+:EventoNoticia rdf:type owl:Class .
+:SentimientoMercado rdf:type owl:Class .
+:RecomendacionTrading rdf:type owl:Class .
+:Estrategia rdf:type owl:Class .
+
+:Agente rdf:type owl:Class .
+:AgentePerfilEstrategia rdf:type owl:Class ; rdfs:subClassOf :Agente .
+:AgenteSenalesTrading rdf:type owl:Class ; rdfs:subClassOf :Agente .
+
+###  Generated by the OWL API (version 4.5.25.2023-02-15T19:15:49Z) https://github.com/owlcs/owlapi
