@@ -1,10 +1,11 @@
 @prefix : <http://www.example.org/trading#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . # <--- PREFIJO AÑADIDO
 
 # --- Tipos Base de Indicadores Técnicos ---
 :TipoSMA rdf:type :TipoIndicadorTecnico ;
-    rdfs:label "Simple Moving Average (SMA)" .
+    rdfs:label "Simple Moving Average (SMA)" . # Uso de rdfs:label
 :TipoRSI rdf:type :TipoIndicadorTecnico ;
     rdfs:label "Relative Strength Index (RSI)" .
 :TipoMACD rdf:type :TipoIndicadorTecnico ;
