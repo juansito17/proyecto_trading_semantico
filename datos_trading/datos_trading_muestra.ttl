@@ -36,7 +36,7 @@
     :tieneTipoBase :TipoMACD ;
     :periodoCorto "12"^^xsd:integer ;
     :periodoLargo "26"^^xsd:integer ;
-    :periodoSenal "9"^^xsd:integer .
+    :periodoseñal "9"^^xsd:integer .
 
 :ConfigBB20_2 rdf:type :IndicadorTecnicoConfig;
     :nombreConfigIndicador "Bandas de Bollinger (20, 2)";
@@ -73,7 +73,7 @@
 :AgenteEstrategiaPrincipal rdf:type :AgentePerfilEstrategia ;
     :configuraEstrategia :EstrategiaPredeterminada .
 
-:AgenteSenalesPrincipal rdf:type :AgenteSenalesTrading .
+:AgenteseñalesPrincipal rdf:type :AgenteseñalesTrading .
 
 # --- Valores de Indicadores de Ejemplo para WLD_USDT (simulados) ---
 :ValorSMA20_WLD_Actual rdf:type :ValorIndicador ;
@@ -92,7 +92,7 @@
     :esValorDe :ConfigMACD12_26_9;
     :seAplicaA :WLD_USDT;
     :valorMACD "-0.05"^^xsd:decimal;
-    :valorSenalMACD "-0.08"^^xsd:decimal; 
+    :valorseñalMACD "-0.08"^^xsd:decimal; 
     :valorHistogramaMACD "0.03"^^xsd:decimal;
     :timestampValor "2025-05-29T10:00:00Z"^^xsd:dateTime.
 
