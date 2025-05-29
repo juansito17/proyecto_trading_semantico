@@ -1,13 +1,11 @@
 # agentes/agente_perfil_estrategia.py
 import os
-import sys # Importar sys para modificar el path
+import sys 
 
-# --- Modificación para permitir la ejecución directa del script ---
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root_dir = os.path.abspath(os.path.join(current_script_dir, '..'))
 if project_root_dir not in sys.path:
     sys.path.insert(0, project_root_dir)
-# --- Fin de la modificación ---
 
 from rdf_utils.rdf_manager_trading import RDFManagerTrading
 from rdflib import Literal, URIRef
@@ -15,13 +13,8 @@ from rdflib.namespace import XSD, RDF
 
 class AgentePerfilEstrategia:
     def __init__(self, rdf_manager: RDFManagerTrading):
-        """
-        Inicializa el Agente de Perfil de Estrategia.
-        Args:
-            rdf_manager (RDFManagerTrading): Instancia del gestor RDF.
-        """
         self.rdf_manager = rdf_manager
-        self.ns = rdf_manager.ns_manager # El agente SÍ usa self.ns correctamente
+        self.ns = rdf_manager.ns_manager 
 
     def definir_o_actualizar_estrategia(self,
                                         nombre_estrategia_local: str,
@@ -89,25 +82,37 @@ class AgentePerfilEstrategia:
             filas = list(resultados)
             if not filas:
                 print(f"AgentePerfilEstrategia: No se encontraron detalles (QUERY FINAL vacía) para '{nombre_estrategia_local}'.")
+                # --- DEBUG: Imprimir todas las tripletas para esta URI de estrategia ---
+                q_debug_existencia = f"""
+                    PREFIX trade: <{self.ns.trade}>
+                    PREFIX rdf: <{RDF}>
+                    SELECT ?p ?o 
+                    WHERE {{ <{estrategia_uri}> ?p ?o . }}"""
+                print(f"DEBUG: Datos existentes para <{estrategia_uri}> en el grafo actual:")
+                res_debug_existencia = self.rdf_manager.ejecutar_sparql(q_debug_existencia)
+                if res_debug_existencia:
+                    count_debug_triples = 0
+                    for r_debug in res_debug_existencia:
+                        print(f"  -> {r_debug['p'].n3(self.rdf_manager.graph.namespace_manager)} :: {r_debug['o'].n3(self.rdf_manager.graph.namespace_manager)}")
+                        count_debug_triples +=1
+                    if count_debug_triples == 0:
+                        print(f"  -> No se encontraron tripletas directas para <{estrategia_uri}>.")
+                # --- FIN DEBUG ---
                 return None
 
-            fila = filas[0] # Resultado de la consulta (un objeto ResultRow)
-            fila_dict = fila.asdict() # Convertir a diccionario para facilitar la verificación de claves
-
-            # print(f"DEBUG: Fila devuelta por SPARQL (como dict): {fila_dict}") # Descomentar para ver todas las claves
-
+            fila = filas[0] 
+            fila_dict = fila.asdict() 
+            
             claves_esperadas = ["nombreEstrategia", "parMonitoreadoURI", "simboloBase", 
                                 "simboloCotizacion", "nivelRiesgo", "horizonteTemporal"]
-            
-            claves_faltantes = [k for k in claves_esperadas if k not in fila_dict]
+            claves_faltantes = [k for k in claves_esperadas if k not in fila_dict or fila_dict[k] is None] # Verificar también si el valor es None
 
             if claves_faltantes:
-                print(f"AgentePerfilEstrategia: Faltan datos esenciales (QUERY FINAL) para '{nombre_estrategia_local}'.")
-                print(f"  Claves esperadas pero faltantes en el resultado: {claves_faltantes}")
-                print(f"  Claves disponibles en el resultado: {list(fila_dict.keys())}")
+                print(f"AgentePerfilEstrategia: Faltan datos esenciales o valores nulos (QUERY FINAL) para '{nombre_estrategia_local}'.")
+                print(f"  Claves esperadas pero faltantes/nulas: {claves_faltantes}")
+                print(f"  Diccionario de la fila devuelta: {fila_dict}")
                 return None
 
-            # Si todas las claves esperadas están, proceder
             configs_uris_str = fila_dict.get("configsIndicadoresURIs")
             nombres_configs_str = fila_dict.get("nombresConfigsIndicadores")
             
@@ -235,3 +240,4 @@ if __name__ == '__main__':
             
         print(f"\nVerifica el archivo de persistencia: {persist_f}")
         print("\nPrueba de AgentePerfilEstrategia completada.")
+

@@ -2,7 +2,7 @@
 import os
 import sys
 from flask import Flask, render_template, request, flash, redirect, url_for
-from datetime import datetime # <--- IMPORTAR DATETIME
+from datetime import datetime
 
 # --- Modificación para permitir la ejecución desde la raíz del proyecto ---
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -14,13 +14,12 @@ if project_root_dir not in sys.path:
 from rdf_utils.rdf_manager_trading import RDFManagerTrading
 from agentes.agente_perfil_estrategia import AgentePerfilEstrategia
 from agentes.agente_senales_trading import AgenteSenalesTrading
-from rdflib.namespace import RDF, XSD # Para tipos y URIs
+from rdflib.namespace import RDF, XSD 
 
 # --- Inicialización de Flask y componentes ---
 app = Flask(__name__, template_folder='templates', static_folder='../static_trading') 
 app.secret_key = os.urandom(24)
 
-# Rutas a los archivos de datos (relativas al directorio raíz del proyecto)
 ONTOLOGIA_PATH = os.path.join(project_root_dir, 'datos_trading', 'ontologia_trading.ttl')
 DATOS_MUESTRA_PATH = os.path.join(project_root_dir, 'datos_trading', 'datos_trading_muestra.ttl')
 DATOS_PERSIST_PATH = os.path.join(project_root_dir, 'datos_trading', 'datos_actualizados.ttl') 
@@ -46,25 +45,12 @@ PARES_MERCADO_DEMO = {
 }
 DEFAULT_PAR_MERCADO_ID = "WLD_USDT"
 
-# --- AÑADIR ESTE PROCESADOR DE CONTEXTO ---
 @app.context_processor
 def inject_global_vars():
     return dict(
         current_year=datetime.utcnow().year,
-        pares_mercado_demo=PARES_MERCADO_DEMO,
-        par_mercado_actual_id=get_current_par_mercado_id() # get_current_par_mercado_id ya existe
+        pares_mercado_demo=PARES_MERCADO_DEMO
     )
-# --- FIN DEL PROCESADOR DE CONTEXTO ---
-
-def get_current_par_mercado_id():
-    return request.args.get("par_mercado", DEFAULT_PAR_MERCADO_ID)
-
-# @app.context_processor # <- ESTO YA NO ES NECESARIO AQUÍ, SE MOVIÓ ARRIBA
-# def inject_pares_mercado():
-# return dict(
-# pares_mercado_demo=PARES_MERCADO_DEMO,
-# par_mercado_actual_id=get_current_par_mercado_id()
-# )
 
 @app.route('/')
 def index_redirect():
@@ -76,12 +62,16 @@ def dashboard_par(par_mercado_id_local):
         flash("Error: El sistema de análisis no está disponible.", "danger")
         return render_template('error_page_trading.html', mensaje="Error de inicialización del sistema.")
 
+    if par_mercado_id_local not in PARES_MERCADO_DEMO:
+        flash(f"Par de mercado '{par_mercado_id_local}' no reconocido.", "warning")
+        return redirect(url_for('dashboard_par', par_mercado_id_local=DEFAULT_PAR_MERCADO_ID))
+
     par_mercado_uri = rdf_manager.ns_manager.get_uri(par_mercado_id_local)
     par_mercado_label = PARES_MERCADO_DEMO.get(par_mercado_id_local, par_mercado_id_local)
     
     datos_dashboard = {
         "par_mercado_label": par_mercado_label,
-        "par_mercado_id_local": par_mercado_id_local,
+        "par_mercado_id_local": par_mercado_id_local, 
         "precio_actual": "N/A",
         "volumen24h": "N/A",
         "ultima_actualizacion_precio": "N/A",
@@ -101,7 +91,7 @@ def dashboard_par(par_mercado_id_local):
     if res_par_info:
         for fila in res_par_info:
             datos_dashboard["precio_actual"] = f"{float(fila['precio']):.4f}" if fila.get("precio") else "N/A"
-            datos_dashboard["volumen24h"] = f"{float(fila['volumen']):,.2f}" if fila.get("volumen") else "N/A"
+            datos_dashboard["volumen24h"] = f"{float(fila.get('volumen', 0)):,.2f}" if fila.get("volumen") else "N/A"
             datos_dashboard["ultima_actualizacion_precio"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
     
     q_valores_indicadores = f"""
@@ -153,11 +143,11 @@ def dashboard_par(par_mercado_id_local):
                     datos_dashboard["valores_indicadores"].append(indicador_display)
                     indicadores_procesados[nombre_conf] = True
 
+    # --- CONSULTA CORREGIDA para q_ultima_recomendacion ---
     q_ultima_recomendacion = f"""
         PREFIX trade: <{rdf_manager.ns_manager.trade}>
         PREFIX rdf: <{RDF}>
-        SELECT ?accion ?justificacion ?confianza ?ts
-               (GROUP_CONCAT(DISTINCT ?descSenal; separator="; ") AS ?senalesDetalle)
+        SELECT ?accion ?justificacion ?confianza ?ts ?senalesDetalle
         WHERE {{
             ?recomInst rdf:type trade:RecomendacionTrading ;
                        trade:paraActivo <{par_mercado_uri}> ;
@@ -165,12 +155,17 @@ def dashboard_par(par_mercado_id_local):
                        trade:justificacionDecision ?justificacion ;
                        trade:nivelConfianza ?confianza ;
                        trade:timestampRecomendacion ?ts .
-            OPTIONAL {{ 
-                ?recomInst trade:basadaEnSenal ?senalURI . 
-                ?senalURI trade:descripcionSenal ?descSenal .
+            
+            # Subconsulta para agregar las descripciones de las señales de forma segura
+            OPTIONAL {{
+                SELECT ?recomInst (GROUP_CONCAT(DISTINCT ?desc; separator="; ") AS ?senalesDetalle)
+                WHERE {{
+                    ?recomInst trade:basadaEnSenal ?s .
+                    ?s trade:descripcionSenal ?desc .
+                }}
+                GROUP BY ?recomInst
             }}
-        }} 
-        GROUP BY ?accion ?justificacion ?confianza ?ts
+        }}
         ORDER BY DESC(?ts)
         LIMIT 1
     """
@@ -182,34 +177,53 @@ def dashboard_par(par_mercado_id_local):
                 "justificacion": str(fila_recom["justificacion"]),
                 "confianza": f"{float(fila_recom['confianza']):.2%}" if fila_recom.get("confianza") else "N/A",
                 "timestamp": str(fila_recom["ts"]),
-                "senales_base": str(fila_recom.get("senalesDetalle", "N/A"))
+                "senales_base": str(fila_recom.get("senalesDetalle", "N/A")) # .get() es importante aquí
             }
             break 
 
-    return render_template('dashboard_trading.html', data=datos_dashboard)
+    return render_template('dashboard_trading.html', data=datos_dashboard, par_mercado_actual_id_for_page=par_mercado_id_local)
 
 @app.route('/ejecutar_ciclo', methods=['POST'])
 def ejecutar_ciclo_agente():
-    if not agente_senales:
-        flash("Error: El agente de señales no está disponible.", "danger")
+    if not agente_senales or not agente_estrategia: 
+        flash("Error: Los agentes de análisis o estrategia no están disponibles.", "danger")
         return redirect(request.referrer or url_for('index_redirect'))
 
-    par_id_actual = get_current_par_mercado_id()
+    par_id_actual = request.args.get("par_mercado") 
+    if not par_id_actual:
+        flash("Error: No se especificó el par de mercado para ejecutar el ciclo.", "danger")
+        return redirect(url_for('index_redirect'))
+        
+    print(f"DEBUG [ejecutar_ciclo_agente]: Solicitud para ejecutar ciclo para el par: {par_id_actual}")
+    
     nombre_estrategia_a_ejecutar = None
     if par_id_actual == "WLD_USDT":
         nombre_estrategia_a_ejecutar = "EstrategiaPredeterminada"
+        print(f"DEBUG [ejecutar_ciclo_agente]: Usando estrategia '{nombre_estrategia_a_ejecutar}' para WLD_USDT.")
     elif par_id_actual == "BTC_USDT":
-        nombre_estrategia_a_ejecutar = "MiEstrategiaAgresivaBTC" 
-        if not agente_estrategia.obtener_estrategia_activa(nombre_estrategia_a_ejecutar):
-             agente_estrategia.definir_o_actualizar_estrategia(
+        nombre_estrategia_a_ejecutar = "MiEstrategiaAgresivaBTC"
+        print(f"DEBUG [ejecutar_ciclo_agente]: Intentando usar/crear estrategia '{nombre_estrategia_a_ejecutar}' para BTC_USDT.")
+        estrategia_btc = agente_estrategia.obtener_estrategia_activa(nombre_estrategia_a_ejecutar)
+        if not estrategia_btc:
+            print(f"DEBUG [ejecutar_ciclo_agente]: Estrategia '{nombre_estrategia_a_ejecutar}' no encontrada. Intentando crearla...")
+            agente_estrategia.definir_o_actualizar_estrategia(
                 nombre_estrategia_local=nombre_estrategia_a_ejecutar,
-                nombre_display_estrategia="Estrategia Agresiva para Bitcoin (Auto)",
+                nombre_display_estrategia="Estrategia Agresiva para Bitcoin (Auto-Creada)",
                 par_mercado_local="BTC_USDT", 
                 uris_config_indicadores=["ConfigRSI14", "ConfigMACD12_26_9"], 
                 nivel_riesgo="ALTO",
                 horizonte_temporal="CORTO_PLAZO"
             )
-
+            estrategia_btc_creada = agente_estrategia.obtener_estrategia_activa(nombre_estrategia_a_ejecutar)
+            if estrategia_btc_creada:
+                print(f"DEBUG [ejecutar_ciclo_agente]: Estrategia '{nombre_estrategia_a_ejecutar}' creada y obtenida exitosamente.")
+            else:
+                print(f"ERROR DEBUG [ejecutar_ciclo_agente]: Falló la creación o obtención de '{nombre_estrategia_a_ejecutar}' después del intento de creación.")
+                flash(f"Error al configurar la estrategia para {par_id_actual}. Verifique los datos base (par, indicadores).", "danger")
+                nombre_estrategia_a_ejecutar = None 
+        else:
+            print(f"DEBUG [ejecutar_ciclo_agente]: Estrategia '{nombre_estrategia_a_ejecutar}' encontrada para BTC_USDT.")
+            
     if nombre_estrategia_a_ejecutar:
         try:
             print(f"Ejecutando ciclo de análisis para la estrategia: {nombre_estrategia_a_ejecutar}")
@@ -219,7 +233,8 @@ def ejecutar_ciclo_agente():
             flash(f"Error al ejecutar el ciclo de análisis: {e}", "danger")
             print(f"Error en ejecutar_ciclo_agente: {e}")
     else:
-        flash(f"No hay una estrategia configurada para el par {par_id_actual} para ejecutar el ciclo.", "warning")
+        flash(f"No hay una estrategia configurada o no se pudo configurar para el par {par_id_actual} para ejecutar el ciclo.", "warning")
+        print(f"WARN [ejecutar_ciclo_agente]: No se ejecutó ciclo para {par_id_actual} porque nombre_estrategia_a_ejecutar es None.")
 
     return redirect(url_for('dashboard_par', par_mercado_id_local=par_id_actual))
 
