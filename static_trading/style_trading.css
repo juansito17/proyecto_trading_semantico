@@ -1,0 +1,47 @@
+/* static_trading/style_trading.css */
+body {
+    padding-top: 60px; /* Ajuste para la navbar fija */
+    background-color: #f8f9fa; /* Un fondo gris claro */
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    background-color: #e9ecef; /* Un gris un poco más oscuro para cabeceras */
+    border-bottom: 1px solid #dee2e6;
+}
+
+.recomendacion-accion.COMPRAR {
+    color: #198754; /* Verde Bootstrap */
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.recomendacion-accion.VENDER {
+    color: #dc3545; /* Rojo Bootstrap */
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.recomendacion-accion.MANTENER {
+    color: #ffc107; /* Amarillo Bootstrap */
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.indicador-valor small {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+}
+
+.list-group-item {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}

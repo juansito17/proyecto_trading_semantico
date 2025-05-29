@@ -1,0 +1,12 @@
+{% extends "base_trading.html" %}
+{% block title %}Error{% endblock %}
+
+{% block content %}
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">¡Error en el Sistema!</h4>
+        <p>{{ mensaje | safe }}</p>
+        <hr>
+        <p class="mb-0">Por favor, intenta de nuevo o contacta al administrador si el problema persiste.</p>
+    </div>
+    <a href="{{ url_for('index_redirect') }}" class="btn btn-primary">Volver al Dashboard Principal</a>
+{% endblock %}

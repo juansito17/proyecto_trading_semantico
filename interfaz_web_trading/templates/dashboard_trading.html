@@ -1,0 +1,73 @@
+{% extends "base_trading.html" %}
+{% block title %}Dashboard: {{ data.par_mercado_label }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Dashboard: {{ data.par_mercado_label }}</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card mb-4">
+            <div class="card-header">
+                Información del Mercado ({{ data.par_mercado_label }})
+            </div>
+            <div class="card-body">
+                <p><strong>Precio Actual:</strong> <span id="precio-actual" class="fs-5">{{ data.precio_actual }} USDT</span></p>
+                <p><strong>Volumen 24h:</strong> {{ data.volumen24h }} USDT</p>
+                <p><small class="text-muted">Última actualización de precio (simulada): {{ data.ultima_actualizacion_precio }}</small></p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Última Recomendación del Agente
+            </div>
+            <div class="card-body">
+                {% if data.ultima_recomendacion %}
+                    <h4>Acción Sugerida: <span class="recomendacion-accion {{ data.ultima_recomendacion.accion }}">{{ data.ultima_recomendacion.accion }}</span></h4>
+                    <p><strong>Justificación:</strong> {{ data.ultima_recomendacion.justificacion }}</p>
+                    <p><strong>Nivel de Confianza:</strong> {{ data.ultima_recomendacion.confianza }}</p>
+                    <p><strong>Basada en Señales:</strong> <small>{{ data.ultima_recomendacion.senales_base }}</small></p>
+                    <p><small class="text-muted">Timestamp: {{ data.ultima_recomendacion.timestamp }}</small></p>
+                {% else %}
+                    <p>No hay recomendaciones disponibles para este par todavía. Ejecuta un ciclo de análisis.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">
+                Indicadores Técnicos (Últimos Valores Calculados)
+            </div>
+            <div class="card-body">
+                {% if data.valores_indicadores %}
+                    <ul class="list-group list-group-flush">
+                        {% for ind in data.valores_indicadores %}
+                            <li class="list-group-item">
+                                <strong>{{ ind.nombre }}:</strong>
+                                {% if ind.valores %}
+                                    <ul class="list-unstyled ms-3 mt-1">
+                                    {% for val_str in ind.valores %}
+                                        <li class="indicador-valor"><small>{{ val_str }}</small></li>
+                                    {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <small class="text-muted ms-3">N/A</small>
+                                {% endif %}
+                                <small class="text-muted d-block text-end">Timestamp: {{ ind.ts }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No hay valores de indicadores disponibles. Ejecuta un ciclo de análisis.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
