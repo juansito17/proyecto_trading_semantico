@@ -172,7 +172,7 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
                 "justificacion": str(fila_recom["justificacion"]),
                 "confianza": f"{float(fila_recom['confianza']):.2%}" if fila_recom.get("confianza") else "N/A",
                 "timestamp": str(fila_recom["ts"]),
-                "señales_base": str(fila_recom.get("señalesDetalle", "N/A")) 
+                "señales_base": str(fila_recom.get("señalesDetalle", "N/A")) if fila_recom.get("señalesDetalle") else "N/A"
             }
 
     return render_template('dashboard_trading.html', data=datos_dashboard, par_mercado_actual_id_for_page=par_mercado_id_local)

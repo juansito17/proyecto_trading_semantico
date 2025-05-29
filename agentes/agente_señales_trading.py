@@ -40,21 +40,11 @@ class AgenteseñalesTrading:
         return self.ns.get_uri(id_local)
 
     def _interpretar_y_almacenar_señales(self, par_mercado_uri: URIRef, par_mercado_local_id: str, valores_indicadores_calculados: dict, precio_actual: float, timestamp_actual_utc: datetime):
-        """
-        Interpreta los valores de los indicadores calculados y almacena las señales técnicas en RDF.
-        Args:
-            par_mercado_uri (URIRef): URI del par de mercado.
-            par_mercado_local_id (str): ID local del par de mercado.
-            valores_indicadores_calculados (dict): Diccionario con los valores de los indicadores.
-                                                  Ej: {'ConfigRSI14': {'valorNumerico': 25.0, 'uri_valor_ind': ...}, ...}
-            precio_actual (float): Precio actual del activo.
-            timestamp_actual_utc (datetime): Timestamp de la generación de señales.
-        """
         print("\nInterpretando y almacenando señales técnicas...")
         señales_generadas_uris = []
 
-        # Ejemplo de interpretación para RSI
-        rsi_config_id = "ConfigRSI14" # Asumimos que este es el ID local de la config RSI
+        # Interpretación para RSI
+        rsi_config_id = "ConfigRSI14"
         if rsi_config_id in valores_indicadores_calculados and valores_indicadores_calculados[rsi_config_id].get('valorNumerico') is not None:
             rsi_valor = valores_indicadores_calculados[rsi_config_id]['valorNumerico']
             uri_valor_rsi = valores_indicadores_calculados[rsi_config_id]['uri_valor_ind']
@@ -67,6 +57,12 @@ class AgenteseñalesTrading:
             elif rsi_valor > 70:
                 tipo_señal_str = "SOBRECOMPRA_RSI"
                 desc_señal = f"RSI ({rsi_valor:.2f}) indica sobrecompra para {par_mercado_local_id}."
+            elif rsi_valor < 40:  # Añadimos señales más sensibles
+                tipo_señal_str = "TENDENCIA_BAJISTA_RSI"
+                desc_señal = f"RSI ({rsi_valor:.2f}) indica tendencia bajista para {par_mercado_local_id}."
+            elif rsi_valor > 60:
+                tipo_señal_str = "TENDENCIA_ALCISTA_RSI"
+                desc_señal = f"RSI ({rsi_valor:.2f}) indica tendencia alcista para {par_mercado_local_id}."
             
             if tipo_señal_str:
                 señal_uri = self._crear_uri_señal_tecnica(par_mercado_local_id, tipo_señal_str)
@@ -79,7 +75,7 @@ class AgenteseñalesTrading:
                 señales_generadas_uris.append(señal_uri)
                 print(f"  Señal generada: {desc_señal}")
 
-        # Ejemplo de interpretación para Cruce de Precio sobre SMA20
+        # Interpretación para SMA20
         sma20_config_id = "ConfigSMA20"
         if sma20_config_id in valores_indicadores_calculados and valores_indicadores_calculados[sma20_config_id].get('valorNumerico') is not None:
             sma20_valor = valores_indicadores_calculados[sma20_config_id]['valorNumerico']
@@ -87,42 +83,39 @@ class AgenteseñalesTrading:
             tipo_señal_str = None
             desc_señal = ""
 
-            # Necesitaríamos el precio anterior para un cruce real, aquí simplificamos: precio actual vs SMA
-            if precio_actual > sma20_valor:
-                tipo_señal_str = "PRECIO_SOBRE_SMA20"
-                desc_señal = f"Precio actual ({precio_actual:.4f}) está por encima de SMA20 ({sma20_valor:.4f}) para {par_mercado_local_id}."
-            elif precio_actual < sma20_valor:
-                tipo_señal_str = "PRECIO_BAJO_SMA20"
-                desc_señal = f"Precio actual ({precio_actual:.4f}) está por debajo de SMA20 ({sma20_valor:.4f}) para {par_mercado_local_id}."
+            diferencia_porcentual = ((precio_actual - sma20_valor) / sma20_valor) * 100
+            if diferencia_porcentual > 2:  # Precio 2% por encima de SMA20
+                tipo_señal_str = "FUERTE_TENDENCIA_ALCISTA_SMA"
+                desc_señal = f"Precio ({precio_actual:.4f}) está {diferencia_porcentual:.1f}% por encima de SMA20 ({sma20_valor:.4f}) para {par_mercado_local_id}."
+            elif diferencia_porcentual > 0:
+                tipo_señal_str = "TENDENCIA_ALCISTA_SMA"
+                desc_señal = f"Precio ({precio_actual:.4f}) está {diferencia_porcentual:.1f}% por encima de SMA20 ({sma20_valor:.4f}) para {par_mercado_local_id}."
+            elif diferencia_porcentual < -2:  # Precio 2% por debajo de SMA20
+                tipo_señal_str = "FUERTE_TENDENCIA_BAJISTA_SMA"
+                desc_señal = f"Precio ({precio_actual:.4f}) está {abs(diferencia_porcentual):.1f}% por debajo de SMA20 ({sma20_valor:.4f}) para {par_mercado_local_id}."
+            else:
+                tipo_señal_str = "TENDENCIA_BAJISTA_SMA"
+                desc_señal = f"Precio ({precio_actual:.4f}) está {abs(diferencia_porcentual):.1f}% por debajo de SMA20 ({sma20_valor:.4f}) para {par_mercado_local_id}."
 
             if tipo_señal_str:
                 señal_uri = self._crear_uri_señal_tecnica(par_mercado_local_id, tipo_señal_str)
                 self.rdf_manager.agregar_tripleta(señal_uri, RDF.type, self.ns.trade.señalTecnica)
-                self.rdf_manager.agregar_tripleta(señal_uri, self.ns.trade.generadaPorIndicador, uri_valor_sma20) # O podría ser una señal compuesta
+                self.rdf_manager.agregar_tripleta(señal_uri, self.ns.trade.generadaPorIndicador, uri_valor_sma20)
                 self.rdf_manager.agregar_tripleta(señal_uri, self.ns.trade.referenteA, par_mercado_uri)
                 self.rdf_manager.agregar_tripleta(señal_uri, self.ns.trade.tiposeñal, Literal(tipo_señal_str))
                 self.rdf_manager.agregar_tripleta(señal_uri, self.ns.trade.descripcionseñal, Literal(desc_señal))
                 self.rdf_manager.agregar_tripleta(señal_uri, self.ns.trade.fechaseñal, Literal(timestamp_actual_utc.isoformat(), datatype=XSD.dateTime))
                 señales_generadas_uris.append(señal_uri)
                 print(f"  Señal generada: {desc_señal}")
-        
-        # TODO: Añadir interpretación para MACD (cruce de línea MACD y señal) y Bandas de Bollinger (precio tocando bandas)
 
         return señales_generadas_uris
 
-
     def _generar_y_almacenar_recomendacion(self, par_mercado_uri: URIRef, par_mercado_local_id: str, estrategia_uri: URIRef, señales_activas_uris: list, timestamp_actual_utc: datetime):
-        """
-        Genera una recomendación de trading basada en las señales activas y la estrategia.
-        Almacena la recomendación en RDF.
-        """
         print("\nGenerando recomendación de trading...")
-        accion_sugerida = "MANTENER" # Por defecto
+        accion_sugerida = "MANTENER"
         justificacion = "No hay suficientes señales claras para una acción."
-        confianza = 0.5 # Default
+        confianza = 0.5
         
-        # Lógica de decisión simple basada en señales (ejemplo)
-        # Necesitamos consultar las propiedades de las señales activas
         tipos_señales_activas = []
         if señales_activas_uris:
             for señal_uri in señales_activas_uris:
@@ -134,17 +127,31 @@ class AgenteseñalesTrading:
         
         print(f"  Tipos de señales activas para decisión: {tipos_señales_activas}")
 
-        # Ejemplo de regla simple:
-        if "SOBREVENTA_RSI" in tipos_señales_activas and "PRECIO_SOBRE_SMA20" in tipos_señales_activas:
-            accion_sugerida = "COMPRAR"
-            justificacion = "RSI indica sobreventa y el precio ha cruzado por encima de la SMA20, posible reversión alcista."
-            confianza = 0.7
-        elif "SOBRECOMPRA_RSI" in tipos_señales_activas and "PRECIO_BAJO_SMA20" in tipos_señales_activas:
-            accion_sugerida = "VENDER"
-            justificacion = "RSI indica sobrecompra y el precio ha cruzado por debajo de la SMA20, posible reversión bajista."
-            confianza = 0.7
+        # Lógica mejorada de decisión
+        señales_alcistas = ["SOBREVENTA_RSI", "TENDENCIA_ALCISTA_RSI", "TENDENCIA_ALCISTA_SMA", "FUERTE_TENDENCIA_ALCISTA_SMA"]
+        señales_bajistas = ["SOBRECOMPRA_RSI", "TENDENCIA_BAJISTA_RSI", "TENDENCIA_BAJISTA_SMA", "FUERTE_TENDENCIA_BAJISTA_SMA"]
         
-        # Crear y almacenar la instancia de RecomendacionTrading
+        señales_alcistas_count = sum(1 for s in tipos_señales_activas if s in señales_alcistas)
+        señales_bajistas_count = sum(1 for s in tipos_señales_activas if s in señales_bajistas)
+        
+        if señales_alcistas_count >= 2:
+            accion_sugerida = "COMPRAR"
+            justificacion = f"Se detectaron {señales_alcistas_count} señales alcistas: " + ", ".join([s for s in tipos_señales_activas if s in señales_alcistas])
+            confianza = min(0.5 + (señales_alcistas_count * 0.1), 0.9)
+        elif señales_bajistas_count >= 2:
+            accion_sugerida = "VENDER"
+            justificacion = f"Se detectaron {señales_bajistas_count} señales bajistas: " + ", ".join([s for s in tipos_señales_activas if s in señales_bajistas])
+            confianza = min(0.5 + (señales_bajistas_count * 0.1), 0.9)
+        elif señales_alcistas_count == 1:
+            accion_sugerida = "COMPRAR"
+            justificacion = f"Se detectó una señal alcista débil: {next(s for s in tipos_señales_activas if s in señales_alcistas)}"
+            confianza = 0.6
+        elif señales_bajistas_count == 1:
+            accion_sugerida = "VENDER"
+            justificacion = f"Se detectó una señal bajista débil: {next(s for s in tipos_señales_activas if s in señales_bajistas)}"
+            confianza = 0.6
+        
+        # Crear y almacenar la recomendación
         recomendacion_uri = self._crear_uri_recomendacion(par_mercado_local_id)
         self.rdf_manager.agregar_tripleta(recomendacion_uri, RDF.type, self.ns.trade.RecomendacionTrading)
         self.rdf_manager.agregar_tripleta(recomendacion_uri, self.ns.trade.paraActivo, par_mercado_uri)
@@ -154,13 +161,11 @@ class AgenteseñalesTrading:
         self.rdf_manager.agregar_tripleta(recomendacion_uri, self.ns.trade.nivelConfianza, Literal(confianza, datatype=XSD.float))
         self.rdf_manager.agregar_tripleta(recomendacion_uri, self.ns.trade.timestampRecomendacion, Literal(timestamp_actual_utc.isoformat(), datatype=XSD.dateTime))
         
-        # Enlazar la recomendación con las señales que la fundamentaron
-        for señal_uri in señales_activas_uris: # Usar las URIs que ya tenemos
+        for señal_uri in señales_activas_uris:
             self.rdf_manager.agregar_tripleta(recomendacion_uri, self.ns.trade.basadaEnseñal, señal_uri)
 
         print(f"  Recomendación generada: {accion_sugerida} para {par_mercado_local_id}. Justificación: {justificacion}")
         return recomendacion_uri
-
 
     def ejecutar_ciclo_analisis(self, nombre_estrategia_local: str = "EstrategiaPredeterminada"):
         print(f"\n--- Iniciando ciclo de análisis del AgenteseñalesTrading para estrategia '{nombre_estrategia_local}' ---")
@@ -175,7 +180,6 @@ class AgenteseñalesTrading:
         par_mercado_uri = URIRef(par_mercado_uri_str)
         par_mercado_local_id = par_mercado_uri_str.split('#')[-1]
         estrategia_uri = URIRef(estrategia["uri"])
-
 
         print(f"Estrategia obtenida: '{estrategia['nombre_display']}' para el par '{par_mercado_label}'")
         if not estrategia["configuraciones_indicadores"]:
