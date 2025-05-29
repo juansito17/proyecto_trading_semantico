@@ -18,24 +18,19 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index_redirect') }}">Trading Semántico</a>
+            <a class="navbar-brand" href="{{ url_for('dashboard_par', par_mercado_id_local='WLD_USDT') }}">Trading Semántico (WLD/USDT)</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {# pares_mercado_demo viene del context_processor global #}
-                    {# par_mercado_actual_id_for_page viene de la vista dashboard_par #}
-                    {% for par_id, par_label in pares_mercado_demo.items() %}
                     <li class="nav-item">
-                        <a class="nav-link {% if par_id == par_mercado_actual_id_for_page %}active{% endif %}" 
-                           href="{{ url_for('dashboard_par', par_mercado_id_local=par_id) }}">{{ par_label }}</a>
+                        <a class="nav-link active" 
+                           href="{{ url_for('dashboard_par', par_mercado_id_local='WLD_USDT') }}">Dashboard WLD/USDT</a>
                     </li>
-                    {% endfor %}
                 </ul>
-                {# El formulario ahora usa par_mercado_actual_id_for_page para construir su acción #}
-                <form class="d-flex" method="post" action="{{ url_for('ejecutar_ciclo_agente', par_mercado=par_mercado_actual_id_for_page) }}">
-                    <button class="btn btn-info btn-sm" type="submit">Ejecutar Ciclo de Análisis</button>
+                <form class="d-flex" method="post" action="{{ url_for('ejecutar_ciclo_agente', par_mercado='WLD_USDT') }}">
+                    <button class="btn btn-info btn-sm" type="submit">Ejecutar Ciclo de Análisis WLD</button>
                 </form>
             </div>
         </div>

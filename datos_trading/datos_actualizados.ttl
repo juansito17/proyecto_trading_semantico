@@ -1,0 +1,461 @@
+@prefix : <http://www.example.org/trading#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.example.org/trading> a owl:Ontology ;
+    rdfs:comment "Ontología para un Asistente Semántico de Decisiones de Trading de Criptomonedas." .
+
+:AgenteEstrategiaPrincipal a :AgentePerfilEstrategia ;
+    :configuraEstrategia :EstrategiaPredeterminada .
+
+:AgenteSenalesPrincipal a :AgenteSenalesTrading .
+
+:ConfigSMA50 a :IndicadorTecnicoConfig ;
+    :nombreConfigIndicador "SMA de 50 períodos" ;
+    :periodoIndicador 50 ;
+    :tieneTipoBase :TipoSMA .
+
+:Recom_WLD_USDT_20250529230501872846_7a3f a :RecomendacionTrading ;
+    :accionSugerida "MANTENER" ;
+    :basadaEnEstrategia :EstrategiaPredeterminada ;
+    :basadaEnSenal :Senal_WLD_USDT_PRECIO_SOBRE_SMA20_20250529230501869860_bc1a ;
+    :justificacionDecision "No hay suficientes señales claras para una acción." ;
+    :nivelConfianza "0.5"^^xsd:float ;
+    :paraActivo :WLD_USDT ;
+    :timestampRecomendacion "2025-05-29T23:05:01.785461+00:00"^^xsd:dateTime .
+
+:Recom_WLD_USDT_20250529230510285912_5183 a :RecomendacionTrading ;
+    :accionSugerida "MANTENER" ;
+    :basadaEnEstrategia :EstrategiaPredeterminada ;
+    :basadaEnSenal :Senal_WLD_USDT_PRECIO_SOBRE_SMA20_20250529230510280934_c2e2 ;
+    :justificacionDecision "No hay suficientes señales claras para una acción." ;
+    :nivelConfianza "0.5"^^xsd:float ;
+    :paraActivo :WLD_USDT ;
+    :timestampRecomendacion "2025-05-29T23:05:10.192865+00:00"^^xsd:dateTime .
+
+:TipoVolumen a :TipoIndicadorTecnico ;
+    rdfs:label "Volume Indicator" .
+
+:ValorBB_WLD_Actual a :ValorIndicador ;
+    :esValorDe :ConfigBB20_2 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T10:00:00+00:00"^^xsd:dateTime ;
+    :valorBandaInferior 3.10 ;
+    :valorBandaMedia 3.50 ;
+    :valorBandaSuperior 3.90 .
+
+:ValorInd_WLD_USDT_ConfigBB20_2_20250529230501847930_37cd a :ValorIndicador ;
+    :esValorDe :ConfigBB20_2 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T23:05:01.785461+00:00"^^xsd:dateTime ;
+    :valorBandaInferior 3.5619227042348367 ;
+    :valorBandaMedia 3.7701128774975103 ;
+    :valorBandaSuperior 3.978303050760184 .
+
+:ValorInd_WLD_USDT_ConfigBB20_2_20250529230510259664_7bb2 a :ValorIndicador ;
+    :esValorDe :ConfigBB20_2 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T23:05:10.192865+00:00"^^xsd:dateTime ;
+    :valorBandaInferior 3.4950792986531463 ;
+    :valorBandaMedia 3.7365284143174526 ;
+    :valorBandaSuperior 3.977977529981759 .
+
+:ValorInd_WLD_USDT_ConfigMACD12_26_9_20250529230501827264_550d a :ValorIndicador ;
+    :esValorDe :ConfigMACD12_26_9 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T23:05:01.785461+00:00"^^xsd:dateTime ;
+    :valorHistogramaMACD 0.005068833302597879 ;
+    :valorMACD 0.05558225500708902 ;
+    :valorSenalMACD 0.05051342170449114 .
+
+:ValorInd_WLD_USDT_ConfigMACD12_26_9_20250529230510237554_f9b6 a :ValorIndicador ;
+    :esValorDe :ConfigMACD12_26_9 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T23:05:10.192865+00:00"^^xsd:dateTime ;
+    :valorHistogramaMACD 0.00816609289039684 ;
+    :valorMACD 0.049076718645940876 ;
+    :valorSenalMACD 0.040910625755544036 .
+
+:ValorInd_WLD_USDT_ConfigRSI14_20250529230501804858_eafe a :ValorIndicador ;
+    :esValorDe :ConfigRSI14 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T23:05:01.785461+00:00"^^xsd:dateTime ;
+    :valorNumerico 60.64611524597276 .
+
+:ValorInd_WLD_USDT_ConfigRSI14_20250529230510214037_791f a :ValorIndicador ;
+    :esValorDe :ConfigRSI14 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T23:05:10.192865+00:00"^^xsd:dateTime ;
+    :valorNumerico 57.11422514555267 .
+
+:ValorMACD_WLD_Actual a :ValorIndicador ;
+    :esValorDe :ConfigMACD12_26_9 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T10:00:00+00:00"^^xsd:dateTime ;
+    :valorHistogramaMACD 0.03 ;
+    :valorMACD -0.05 ;
+    :valorSenalMACD -0.08 .
+
+:ValorRSI14_WLD_Actual a :ValorIndicador ;
+    :esValorDe :ConfigRSI14 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T10:00:00+00:00"^^xsd:dateTime ;
+    :valorNumerico 35.0 .
+
+:ValorSMA20_WLD_Actual a :ValorIndicador ;
+    :esValorDe :ConfigSMA20 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T10:00:00+00:00"^^xsd:dateTime ;
+    :valorNumerico 3.45 .
+
+:accionSugerida a owl:DatatypeProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range xsd:string .
+
+:basadaEnEstrategia a owl:ObjectProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range :Estrategia .
+
+:basadaEnNoticia a owl:ObjectProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range :EventoNoticia .
+
+:basadaEnSenal a owl:ObjectProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range :SenalTecnica .
+
+:configuraEstrategia a owl:ObjectProperty ;
+    rdfs:domain :AgentePerfilEstrategia ;
+    rdfs:range :Estrategia .
+
+:consideraSentimiento a owl:ObjectProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range :SentimientoMercado .
+
+:descripcionActivo a owl:DatatypeProperty ;
+    rdfs:domain :ActivoDigital ;
+    rdfs:range xsd:string .
+
+:descripcionSenal a owl:DatatypeProperty ;
+    rdfs:domain :SenalTecnica ;
+    rdfs:range xsd:string .
+
+:desviacionEstandar a owl:DatatypeProperty ;
+    rdfs:domain :IndicadorTecnicoConfig ;
+    rdfs:range xsd:decimal .
+
+:esValorDe a owl:ObjectProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range :IndicadorTecnicoConfig .
+
+:fechaNoticia a owl:DatatypeProperty ;
+    rdfs:domain :EventoNoticia ;
+    rdfs:range xsd:dateTime .
+
+:fechaSenal a owl:DatatypeProperty ;
+    rdfs:domain :SenalTecnica ;
+    rdfs:range xsd:dateTime .
+
+:fuenteNoticia a owl:DatatypeProperty ;
+    rdfs:domain :EventoNoticia ;
+    rdfs:range xsd:string .
+
+:fuenteSentimiento a owl:DatatypeProperty ;
+    rdfs:domain :SentimientoMercado ;
+    rdfs:range xsd:string .
+
+:fuerzaSenal a owl:DatatypeProperty ;
+    rdfs:domain :SenalTecnica ;
+    rdfs:range xsd:string .
+
+:generadaPorAgente a owl:ObjectProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range :AgenteSenalesTrading .
+
+:generadaPorIndicador a owl:ObjectProperty ;
+    rdfs:domain :SenalTecnica ;
+    rdfs:range :ValorIndicador .
+
+:horizonteTemporal a owl:DatatypeProperty ;
+    rdfs:domain :Estrategia ;
+    rdfs:range xsd:string .
+
+:justificacionDecision a owl:DatatypeProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range xsd:string .
+
+:monitoreaPar a owl:ObjectProperty ;
+    rdfs:domain :Estrategia ;
+    rdfs:range :ParMercado .
+
+:nivelConfianza a owl:DatatypeProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range xsd:float .
+
+:nivelRiesgoPreferido a owl:DatatypeProperty ;
+    rdfs:domain :Estrategia ;
+    rdfs:range xsd:string .
+
+:nombreCompleto a owl:DatatypeProperty ;
+    rdfs:domain :Criptomoneda ;
+    rdfs:range xsd:string .
+
+:nombreConfigIndicador a owl:DatatypeProperty ;
+    rdfs:domain :IndicadorTecnicoConfig ;
+    rdfs:range xsd:string .
+
+:nombreEstrategia a owl:DatatypeProperty ;
+    rdfs:domain :Estrategia ;
+    rdfs:range xsd:string .
+
+:paraActivo a owl:ObjectProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range :ParMercado .
+
+:periodoCorto a owl:DatatypeProperty ;
+    rdfs:domain :IndicadorTecnicoConfig ;
+    rdfs:range xsd:integer .
+
+:periodoIndicador a owl:DatatypeProperty ;
+    rdfs:domain :IndicadorTecnicoConfig ;
+    rdfs:range xsd:integer .
+
+:periodoLargo a owl:DatatypeProperty ;
+    rdfs:domain :IndicadorTecnicoConfig ;
+    rdfs:range xsd:integer .
+
+:periodoSenal a owl:DatatypeProperty ;
+    rdfs:domain :IndicadorTecnicoConfig ;
+    rdfs:range xsd:integer .
+
+:precioActual a owl:DatatypeProperty ;
+    rdfs:domain :ParMercado ;
+    rdfs:range xsd:decimal .
+
+:precioSugeridoEntrada a owl:DatatypeProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range xsd:decimal .
+
+:precioSugeridoStopLoss a owl:DatatypeProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range xsd:decimal .
+
+:precioSugeridoTakeProfit a owl:DatatypeProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range xsd:decimal .
+
+:referenteA a owl:ObjectProperty ;
+    rdfs:domain :SenalTecnica ;
+    rdfs:range :ParMercado .
+
+:resumenNoticia a owl:DatatypeProperty ;
+    rdfs:domain :EventoNoticia ;
+    rdfs:range xsd:string .
+
+:seAplicaA a owl:ObjectProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range :ParMercado .
+
+:sentimientoInferidoNoticia a owl:DatatypeProperty ;
+    rdfs:domain :EventoNoticia ;
+    rdfs:range xsd:string .
+
+:simboloCripto a owl:DatatypeProperty ;
+    rdfs:domain :Criptomoneda ;
+    rdfs:range xsd:string .
+
+:tieneActivoBase a owl:ObjectProperty ;
+    rdfs:domain :ParMercado ;
+    rdfs:range :Criptomoneda .
+
+:tieneActivoCotizacion a owl:ObjectProperty ;
+    rdfs:domain :ParMercado ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( :Criptomoneda :MonedaFiat ) ] .
+
+:tieneTipoBase a owl:ObjectProperty ;
+    rdfs:domain :IndicadorTecnicoConfig ;
+    rdfs:range :TipoIndicadorTecnico .
+
+:timestampRecomendacion a owl:DatatypeProperty ;
+    rdfs:domain :RecomendacionTrading ;
+    rdfs:range xsd:dateTime .
+
+:timestampSentimiento a owl:DatatypeProperty ;
+    rdfs:domain :SentimientoMercado ;
+    rdfs:range xsd:dateTime .
+
+:timestampValor a owl:DatatypeProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range xsd:dateTime .
+
+:tipoSENAL a owl:DatatypeProperty ;
+    rdfs:domain :SenalTecnica ;
+    rdfs:range xsd:string .
+
+:titularNoticia a owl:DatatypeProperty ;
+    rdfs:domain :EventoNoticia ;
+    rdfs:range xsd:string .
+
+:utilizaConfigIndicador a owl:ObjectProperty ;
+    rdfs:domain :Estrategia ;
+    rdfs:range :IndicadorTecnicoConfig .
+
+:valorBandaInferior a owl:DatatypeProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range xsd:decimal .
+
+:valorBandaMedia a owl:DatatypeProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range xsd:decimal .
+
+:valorBandaSuperior a owl:DatatypeProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range xsd:decimal .
+
+:valorHistogramaMACD a owl:DatatypeProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range xsd:decimal .
+
+:valorMACD a owl:DatatypeProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range xsd:decimal .
+
+:valorNumerico a owl:DatatypeProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range xsd:decimal .
+
+:valorSenalMACD a owl:DatatypeProperty ;
+    rdfs:domain :ValorIndicador ;
+    rdfs:range xsd:decimal .
+
+:valorSentimiento a owl:DatatypeProperty ;
+    rdfs:domain :SentimientoMercado ;
+    rdfs:range xsd:string .
+
+:volumen24h a owl:DatatypeProperty ;
+    rdfs:domain :ParMercado ;
+    rdfs:range xsd:decimal .
+
+:MonedaFiat a owl:Class ;
+    rdfs:subClassOf :ActivoDigital .
+
+:Senal_WLD_USDT_PRECIO_SOBRE_SMA20_20250529230501869860_bc1a a :SenalTecnica ;
+    :descripcionSenal "Precio actual (3.8676) está por encima de SMA20 (3.7701) para WLD_USDT." ;
+    :fechaSenal "2025-05-29T23:05:01.785461+00:00"^^xsd:dateTime ;
+    :generadaPorIndicador :ValorInd_WLD_USDT_ConfigSMA20_20250529230501786467_b91e ;
+    :referenteA :WLD_USDT ;
+    :tipoSENAL "PRECIO_SOBRE_SMA20" .
+
+:Senal_WLD_USDT_PRECIO_SOBRE_SMA20_20250529230510280934_c2e2 a :SenalTecnica ;
+    :descripcionSenal "Precio actual (3.8643) está por encima de SMA20 (3.7365) para WLD_USDT." ;
+    :fechaSenal "2025-05-29T23:05:10.192865+00:00"^^xsd:dateTime ;
+    :generadaPorIndicador :ValorInd_WLD_USDT_ConfigSMA20_20250529230510192865_6716 ;
+    :referenteA :WLD_USDT ;
+    :tipoSENAL "PRECIO_SOBRE_SMA20" .
+
+:TipoBandasBollinger a :TipoIndicadorTecnico ;
+    rdfs:label "Bollinger Bands" .
+
+:TipoMACD a :TipoIndicadorTecnico ;
+    rdfs:label "Moving Average Convergence Divergence (MACD)" .
+
+:TipoRSI a :TipoIndicadorTecnico ;
+    rdfs:label "Relative Strength Index (RSI)" .
+
+:USDT a :Criptomoneda ;
+    :nombreCompleto "Tether" ;
+    :simboloCripto "USDT" .
+
+:ValorInd_WLD_USDT_ConfigSMA20_20250529230501786467_b91e a :ValorIndicador ;
+    :esValorDe :ConfigSMA20 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T23:05:01.785461+00:00"^^xsd:dateTime ;
+    :valorNumerico 3.7701128774975103 .
+
+:ValorInd_WLD_USDT_ConfigSMA20_20250529230510192865_6716 a :ValorIndicador ;
+    :esValorDe :ConfigSMA20 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T23:05:10.192865+00:00"^^xsd:dateTime ;
+    :valorNumerico 3.7365284143174526 .
+
+:WLD a :Criptomoneda ;
+    :descripcionActivo "Una criptomoneda con el objetivo de crear una red financiera y de identidad global." ;
+    :nombreCompleto "Worldcoin" ;
+    :simboloCripto "WLD" .
+
+:Agente a owl:Class .
+
+:AgentePerfilEstrategia a owl:Class ;
+    rdfs:subClassOf :Agente .
+
+:AgenteSenalesTrading a owl:Class ;
+    rdfs:subClassOf :Agente .
+
+:TipoSMA a :TipoIndicadorTecnico ;
+    rdfs:label "Simple Moving Average (SMA)" .
+
+:ActivoDigital a owl:Class .
+
+:EstrategiaPredeterminada a :Estrategia ;
+    :horizonteTemporal "CORTO_PLAZO" ;
+    :monitoreaPar :WLD_USDT ;
+    :nivelRiesgoPreferido "MEDIO" ;
+    :nombreEstrategia "Estrategia Conservadora WLD" ;
+    :utilizaConfigIndicador :ConfigBB20_2,
+        :ConfigMACD12_26_9,
+        :ConfigRSI14,
+        :ConfigSMA20 .
+
+:ConfigBB20_2 a :IndicadorTecnicoConfig ;
+    :desviacionEstandar 2.0 ;
+    :nombreConfigIndicador "Bandas de Bollinger (20, 2)" ;
+    :periodoIndicador 20 ;
+    :tieneTipoBase :TipoBandasBollinger .
+
+:ConfigMACD12_26_9 a :IndicadorTecnicoConfig ;
+    :nombreConfigIndicador "MACD (12, 26, 9)" ;
+    :periodoCorto 12 ;
+    :periodoLargo 26 ;
+    :periodoSenal 9 ;
+    :tieneTipoBase :TipoMACD .
+
+:ConfigRSI14 a :IndicadorTecnicoConfig ;
+    :nombreConfigIndicador "RSI de 14 períodos" ;
+    :periodoIndicador 14 ;
+    :tieneTipoBase :TipoRSI .
+
+:ConfigSMA20 a :IndicadorTecnicoConfig ;
+    :nombreConfigIndicador "SMA de 20 períodos" ;
+    :periodoIndicador 20 ;
+    :tieneTipoBase :TipoSMA .
+
+:SentimientoMercado a owl:Class .
+
+:Criptomoneda a owl:Class ;
+    rdfs:subClassOf :ActivoDigital .
+
+:EventoNoticia a owl:Class .
+
+:TipoIndicadorTecnico a owl:Class .
+
+:Estrategia a owl:Class .
+
+:ParMercado a owl:Class .
+
+:SenalTecnica a owl:Class .
+
+:IndicadorTecnicoConfig a owl:Class .
+
+:RecomendacionTrading a owl:Class .
+
+:WLD_USDT a :ParMercado ;
+    :precioActual 3.86428692334532 ;
+    :tieneActivoBase :WLD ;
+    :tieneActivoCotizacion :USDT ;
+    :volumen24h 15000000.00 .
+
+:ValorIndicador a owl:Class .
+
