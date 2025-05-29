@@ -1,9 +1,8 @@
-# rdf_utils/rdf_manager_trading.py
 import os
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, XSD
 from datetime import datetime
-import pandas as pd # Necesario para algunos tipos de datos de indicadores
+import pandas as pd
 
 class RDFManagerTrading:
     def __init__(self, ontologia_path="datos_trading/ontologia_trading.ttl",
@@ -164,7 +163,7 @@ if __name__ == '__main__':
     # Estas rutas asumen que el script se ejecuta desde la raíz del proyecto.
     # Si ejecutas `python rdf_utils/rdf_manager_trading.py`, ajusta las rutas:
     current_dir = os.path.dirname(__file__)
-    base_dir = os.path.join(current_dir, '..') # Sube un nivel para estar en la raíz del proyecto
+    base_dir = os.path.join(current_dir, '..')
     
     ontologia_f = os.path.join(base_dir, 'datos_trading', 'ontologia_trading.ttl')
     datos_muestra_f = os.path.join(base_dir, 'datos_trading', 'datos_trading_muestra.ttl')
@@ -204,7 +203,7 @@ if __name__ == '__main__':
 
     print("\n--- Actualizando precio de WLD_USDT ---")
     wld_usdt_uri = manager.ns_trade.WLD_USDT
-    manager.actualizar_precio_par_mercado(wld_usdt_uri, 3.55) # Nuevo precio
+    manager.actualizar_precio_par_mercado(wld_usdt_uri, 3.55)
 
     query_precio_wld = f"""
         PREFIX trade: <{manager.ns_trade}>
@@ -220,12 +219,12 @@ if __name__ == '__main__':
             assert fila['precio'] == Literal(3.55, datatype=XSD.decimal), "La actualización del precio falló"
 
     print("\n--- Guardando datos ---")
-    manager.guardar_datos() # Guarda en persist_f ('test_rdf_manager_persist.ttl')
+    manager.guardar_datos()
     
     print("\n--- Cargando de nuevo para verificar persistencia ---")
     manager_recargado = RDFManagerTrading(
         ontologia_path=ontologia_f,
-        datos_muestra_path=datos_muestra_f, # No debería usar este si persist_f existe
+        datos_muestra_path=datos_muestra_f,
         persist_path=persist_f
     )
     print(f"Total de tripletas después de recargar: {len(manager_recargado.graph)}")

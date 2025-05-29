@@ -50,11 +50,6 @@
     :nombreCompleto "Worldcoin" ;
     :descripcionActivo "Una criptomoneda con el objetivo de crear una red financiera y de identidad global." .
 
-# :BTC rdf:type :Criptomoneda ;  # Comentado o eliminado
-#     :simboloCripto "BTC" ;
-#     :nombreCompleto "Bitcoin" ;
-#     :descripcionActivo "La primera criptomoneda descentralizada." .
-
 :USDT rdf:type :Criptomoneda ; 
      :simboloCripto "USDT" ;
      :nombreCompleto "Tether" .
@@ -65,12 +60,6 @@
     :tieneActivoCotizacion :USDT ;
     :precioActual "3.50"^^xsd:decimal ; 
     :volumen24h "15000000.00"^^xsd:decimal .
-
-# :BTC_USDT rdf:type :ParMercado ; # Comentado o eliminado
-#     :tieneActivoBase :BTC ;
-#     :tieneActivoCotizacion :USDT ;
-#     :precioActual "60000.00"^^xsd:decimal ;
-#     :volumen24h "2000000000.00"^^xsd:decimal .
 
 # --- Estrategia de Ejemplo ---
 :EstrategiaPredeterminada rdf:type :Estrategia ;
@@ -87,10 +76,6 @@
 :AgenteSenalesPrincipal rdf:type :AgenteSenalesTrading .
 
 # --- Valores de Indicadores de Ejemplo para WLD_USDT (simulados) ---
-# Puedes dejar estos o quitarlos si quieres que el primer ciclo los genere siempre.
-# Si los dejas, el dashboard mostrará estos indicadores al inicio.
-# Si los quitas, el dashboard de indicadores estará vacío hasta el primer ciclo.
-# Por ahora, los dejaremos para que se vea algo al inicio.
 :ValorSMA20_WLD_Actual rdf:type :ValorIndicador ;
     :esValorDe :ConfigSMA20 ;
     :seAplicaA :WLD_USDT ;
@@ -118,12 +103,3 @@
     :valorBandaMedia "3.50"^^xsd:decimal;    
     :valorBandaInferior "3.10"^^xsd:decimal;
     :timestampValor "2025-05-29T10:00:00Z"^^xsd:dateTime.
-
-# --- Señales Técnicas de Ejemplo (inferidas de los valores anteriores) ---
-# También quitaremos estas para que se generen en el primer ciclo.
-# :SenalRSI_WLD_1 rdf:type :SenalTecnica ; ...
-# :SenalMACD_WLD_1 rdf:type :SenalTecnica ; ...
-
-# --- Recomendación de Trading de Ejemplo ---
-# ELIMINADA para que el dashboard comience sin recomendación.
-# :RecomendacionWLD_1 rdf:type :RecomendacionTrading ; ...

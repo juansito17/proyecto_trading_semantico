@@ -20,7 +20,6 @@ def calcular_sma(series: pd.Series, periodo: int) -> float | None:
         print("Error en calcular_sma: la entrada 'series' debe ser un pd.Series.")
         return None
     if series.empty or len(series) < periodo:
-        # print(f"Datos insuficientes para SMA({periodo}). Se necesitan {periodo}, se tienen {len(series)}.")
         return None
     try:
         sma = series.rolling(window=periodo).mean().iloc[-1]
@@ -38,7 +37,6 @@ def calcular_rsi(series: pd.Series, periodo: int = RSI_DEFAULT_PERIOD) -> float 
         print("Error en calcular_rsi: la entrada 'series' debe ser un pd.Series.")
         return None
     if series.empty or len(series) < periodo + 1: # RSI necesita al menos periodo+1 puntos para el primer cálculo de delta
-        # print(f"Datos insuficientes para RSI({periodo}). Se necesitan {periodo + 1}, se tienen {len(series)}.")
         return None
     try:
         delta = series.diff()
@@ -51,7 +49,6 @@ def calcular_rsi(series: pd.Series, periodo: int = RSI_DEFAULT_PERIOD) -> float 
         last_rsi = rsi.iloc[-1]
         return float(last_rsi) if pd.notna(last_rsi) else None
     except ZeroDivisionError: # Puede ocurrir si loss es 0 consistentemente
-        # print(f"División por cero calculando RSI({periodo}), podría indicar tendencia muy fuerte.")
         # Si solo hay ganancias, RSI es 100. Si solo pérdidas, RSI es 0 (aunque la fórmula da NaN/inf).
         # Un manejo más robusto es necesario aquí si esto es frecuente.
         # Por ahora, devolvemos None o un valor extremo si se puede determinar.
@@ -76,8 +73,7 @@ def calcular_macd(series: pd.Series,
     if not isinstance(series, pd.Series):
         print("Error en calcular_macd: la entrada 'series' debe ser un pd.Series.")
         return None
-    if series.empty or len(series) < periodo_largo + periodo_senal: # Aproximación de datos necesarios
-        # print(f"Datos insuficientes para MACD({periodo_corto},{periodo_largo},{periodo_senal}).")
+    if series.empty or len(series) < periodo_largo + periodo_senal:
         return None
     try:
         ema_corto = series.ewm(span=periodo_corto, adjust=False).mean()
@@ -111,7 +107,6 @@ def calcular_bandas_bollinger(series: pd.Series,
         print("Error en calcular_bandas_bollinger: la entrada 'series' debe ser un pd.Series.")
         return None
     if series.empty or len(series) < periodo:
-        # print(f"Datos insuficientes para Bandas de Bollinger({periodo},{num_std_dev}).")
         return None
     try:
         sma = series.rolling(window=periodo).mean()
@@ -142,22 +137,18 @@ def obtener_datos_historicos_simulados(simbolo_par: str, periodo_tiempo: str, li
     'timestamp' debe ser un índice de tipo DatetimeIndex.
     """
     print(f"Simulando obtención de datos históricos para {simbolo_par}, periodo {periodo_tiempo}, limite {limite}")
-    # Ejemplo de datos simulados (¡esto debería ser mucho más realista!)
-    # Fechas hacia atrás desde hoy
     end_date = pd.Timestamp.now(tz='UTC')
-    # Ajustar el número de días según el 'limite' y el 'periodo_tiempo' (ej. '1d', '4h')
-    # Esto es una simplificación. Para '1d', limite es días. Para '1h', limite es horas.
     if periodo_tiempo == '1d':
         start_date = end_date - pd.Timedelta(days=limite -1)
         dates = pd.date_range(start=start_date, end=end_date, freq='D', tz='UTC')
     elif periodo_tiempo == '1h':
         start_date = end_date - pd.Timedelta(hours=limite -1)
         dates = pd.date_range(start=start_date, end=end_date, freq='H', tz='UTC')
-    else: # Por defecto, días
+    else:
         start_date = end_date - pd.Timedelta(days=limite-1)
         dates = pd.date_range(start=start_date, end=end_date, freq='D', tz='UTC')
 
-    if len(dates) == 0: return None # No se pudieron generar fechas
+    if len(dates) == 0: return None
 
     data = {
         'open': np.random.uniform(low=2.5, high=4.5, size=len(dates)),

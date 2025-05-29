@@ -48,3 +48,9 @@ wheels/
 *.swp
 *~.nib
 local.properties 
+
+# Archivos de datos de trading
+datos_trading/datos_actualizados.ttl
+datos_trading/test_agente_senales_persist.ttl
+datos_trading/test_agente_estrategia_persist.ttl
+datos_trading/test_rdf_manager_persist.ttl 

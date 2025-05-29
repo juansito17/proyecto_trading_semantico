@@ -1,4 +1,3 @@
-# interfaz_web_trading/app_trading.py
 import os
 import sys
 from flask import Flask, render_template, request, flash, redirect, url_for
@@ -36,7 +35,6 @@ except Exception as e:
     agente_estrategia = None
     agente_senales = None
 
-# --- MODIFICADO: Solo WLD_USDT ---
 PARES_MERCADO_DEMO = {
     "WLD_USDT": "WLD/USDT"
 }
@@ -47,16 +45,15 @@ def inject_global_vars():
     return dict(
         current_year=datetime.utcnow().year,
         pares_mercado_demo=PARES_MERCADO_DEMO 
-        # par_mercado_actual_id ya no es global, se pasa a la plantilla específica
     )
 
 @app.route('/')
 def index_redirect():
     return redirect(url_for('dashboard_par', par_mercado_id_local=DEFAULT_PAR_MERCADO_ID))
 
-@app.route('/dashboard/') # Ruta base para el dashboard
+@app.route('/dashboard/')
 @app.route('/dashboard/<par_mercado_id_local>')
-def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID): # Default si no se especifica
+def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
     if not rdf_manager or not agente_senales:
         flash("Error: El sistema de análisis no está disponible.", "danger")
         return render_template('error_page_trading.html', mensaje="Error de inicialización del sistema.")
@@ -164,15 +161,12 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID): # Default si no 
         ORDER BY DESC(?ts)
         LIMIT 1
     """
-    # print(f"DEBUG: Ejecutando q_ultima_recomendacion para {par_mercado_uri}")
     res_recom = rdf_manager.ejecutar_sparql(q_ultima_recomendacion)
     
     if res_recom:
         lista_res_recom = list(res_recom) 
-        # print(f"DEBUG: Resultados de q_ultima_recomendacion: {len(lista_res_recom)} filas.")
         if lista_res_recom:
             fila_recom = lista_res_recom[0] 
-            # print(f"DEBUG: Fila de recomendación: {fila_recom.asdict()}")
             datos_dashboard["ultima_recomendacion"] = {
                 "accion": str(fila_recom["accion"]),
                 "justificacion": str(fila_recom["justificacion"]),
@@ -180,43 +174,32 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID): # Default si no 
                 "timestamp": str(fila_recom["ts"]),
                 "senales_base": str(fila_recom.get("senalesDetalle", "N/A")) 
             }
-    # else:
-        # print(f"DEBUG: q_ultima_recomendacion no devolvió resultados (objeto None).")
 
     return render_template('dashboard_trading.html', data=datos_dashboard, par_mercado_actual_id_for_page=par_mercado_id_local)
 
-@app.route('/ejecutar_ciclo', methods=['POST'])
-def ejecutar_ciclo_agente():
-    if not agente_senales or not agente_estrategia: 
+@app.route('/ejecutar_ciclo_agente/<par_mercado_id_local>', methods=['POST'])
+def ejecutar_ciclo_agente(par_mercado_id_local):
+    if not agente_senales or not agente_estrategia:
         flash("Error: Los agentes de análisis o estrategia no están disponibles.", "danger")
         return redirect(request.referrer or url_for('index_redirect'))
 
-    # --- MODIFICADO: El par siempre será WLD_USDT para el ciclo ---
-    par_id_actual = "WLD_USDT" 
+    par_id_actual = par_mercado_id_local
     nombre_estrategia_a_ejecutar = "EstrategiaPredeterminada"
-        
-    print(f"DEBUG [ejecutar_ciclo_agente]: Solicitud para ejecutar ciclo para el par: {par_id_actual}")
-    print(f"DEBUG [ejecutar_ciclo_agente]: Usando estrategia '{nombre_estrategia_a_ejecutar}' para {par_id_actual}.")
-            
-    if nombre_estrategia_a_ejecutar:
-        # Verificar si la estrategia existe, si no, crearla (importante para la primera ejecución)
-        current_strategy_details = agente_estrategia.obtener_estrategia_activa(nombre_estrategia_a_ejecutar)
-        if not current_strategy_details:
-            print(f"DEBUG [ejecutar_ciclo_agente]: Estrategia '{nombre_estrategia_a_ejecutar}' no encontrada. Intentando crearla...")
+
+    if par_id_actual == "WLD_USDT":
+        if not agente_estrategia.obtener_estrategia_activa(nombre_estrategia_a_ejecutar):
             agente_estrategia.definir_o_actualizar_estrategia(
                 nombre_estrategia_local=nombre_estrategia_a_ejecutar,
-                nombre_display_estrategia="Estrategia Conservadora WLD (Auto-Creada)", # Nombre consistente
+                nombre_display_estrategia="Estrategia Conservadora WLD (Auto-Creada)",
                 par_mercado_local=par_id_actual, 
                 uris_config_indicadores=["ConfigSMA20", "ConfigRSI14", "ConfigMACD12_26_9", "ConfigBB20_2"], 
                 nivel_riesgo="MEDIO",
                 horizonte_temporal="CORTO_PLAZO"
             )
-            # Volver a obtener para confirmar
             if not agente_estrategia.obtener_estrategia_activa(nombre_estrategia_a_ejecutar):
                 flash(f"Error crítico al configurar la estrategia '{nombre_estrategia_a_ejecutar}'.", "danger")
                 return redirect(url_for('dashboard_par', par_mercado_id_local=par_id_actual))
             print(f"DEBUG [ejecutar_ciclo_agente]: Estrategia '{nombre_estrategia_a_ejecutar}' creada/verificada.")
-
 
         try:
             print(f"Ejecutando ciclo de análisis para la estrategia: {nombre_estrategia_a_ejecutar}")
@@ -225,9 +208,9 @@ def ejecutar_ciclo_agente():
         except Exception as e:
             flash(f"Error al ejecutar el ciclo de análisis: {e}", "danger")
             print(f"Error en ejecutar_ciclo_agente: {e}")
-    else: # No debería llegar aquí si par_id_actual siempre es WLD_USDT
+    else:
         flash(f"No se pudo determinar la estrategia para el par {par_id_actual}.", "warning")
-        print(f"WARN [ejecutar_ciclo_agente]: No se ejecutó ciclo para {par_id_actual} porque nombre_estrategia_a_ejecutar es None.")
+        print(f"WARN [ejecutar_ciclo_agente]: No se ejecutó ciclo para {par_id_actual} porque nombre_estrategia_a_ejecutar")
 
     return redirect(url_for('dashboard_par', par_mercado_id_local=par_id_actual))
 
