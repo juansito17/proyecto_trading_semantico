@@ -21,6 +21,15 @@
     :periodoIndicador 50 ;
     :tieneTipoBase :TipoSMA .
 
+:Recom_WLD_USDT_20250529221825917194_cf00 a :RecomendacionTrading ;
+    :accionSugerida "MANTENER" ;
+    :basadaEnEstrategia :EstrategiaPredeterminada ;
+    :basadaEnSenal :Senal_WLD_USDT_PRECIO_BAJO_SMA20_20250529221825914196_e431 ;
+    :justificacionDecision "No hay suficientes señales claras para una acción." ;
+    :nivelConfianza "0.5"^^xsd:float ;
+    :paraActivo :WLD_USDT ;
+    :timestampRecomendacion "2025-05-29T22:18:25.865924+00:00"^^xsd:dateTime .
+
 :RecomendacionWLD_1 a :RecomendacionTrading ;
     :accionSugerida "COMPRAR" ;
     :basadaEnEstrategia :EstrategiaPredeterminada ;
@@ -46,33 +55,27 @@
     :valorBandaMedia 3.50 ;
     :valorBandaSuperior 3.90 .
 
-:ValorInd_WLD_USDT_ConfigBB20_2_20250529221458086096_07d5 a :ValorIndicador ;
+:ValorInd_WLD_USDT_ConfigBB20_2_20250529221825902681_9d7b a :ValorIndicador ;
     :esValorDe :ConfigBB20_2 ;
     :seAplicaA :WLD_USDT ;
-    :timestampValor "2025-05-29T22:14:58.045760+00:00"^^xsd:dateTime ;
-    :valorBandaInferior 3.5396376000502254 ;
-    :valorBandaMedia 3.795967360149227 ;
-    :valorBandaSuperior 4.0522971202482285 .
+    :timestampValor "2025-05-29T22:18:25.865924+00:00"^^xsd:dateTime ;
+    :valorBandaInferior 3.5965653346237914 ;
+    :valorBandaMedia 3.800817678029682 ;
+    :valorBandaSuperior 4.005070021435572 .
 
-:ValorInd_WLD_USDT_ConfigMACD12_26_9_20250529221458073094_b6a2 a :ValorIndicador ;
+:ValorInd_WLD_USDT_ConfigMACD12_26_9_20250529221825890698_10d1 a :ValorIndicador ;
     :esValorDe :ConfigMACD12_26_9 ;
     :seAplicaA :WLD_USDT ;
-    :timestampValor "2025-05-29T22:14:58.045760+00:00"^^xsd:dateTime ;
-    :valorHistogramaMACD -0.008536789767497596 ;
-    :valorMACD 0.04675011780184457 ;
-    :valorSenalMACD 0.05528690756934217 .
+    :timestampValor "2025-05-29T22:18:25.865924+00:00"^^xsd:dateTime ;
+    :valorHistogramaMACD -0.014507232069338162 ;
+    :valorMACD 0.039753637978150014 ;
+    :valorSenalMACD 0.054260870047488176 .
 
-:ValorInd_WLD_USDT_ConfigRSI14_20250529221458059747_5b31 a :ValorIndicador ;
+:ValorInd_WLD_USDT_ConfigRSI14_20250529221825878257_4160 a :ValorIndicador ;
     :esValorDe :ConfigRSI14 ;
     :seAplicaA :WLD_USDT ;
-    :timestampValor "2025-05-29T22:14:58.045760+00:00"^^xsd:dateTime ;
-    :valorNumerico 54.83300777362115 .
-
-:ValorInd_WLD_USDT_ConfigSMA20_20250529221458045760_45fc a :ValorIndicador ;
-    :esValorDe :ConfigSMA20 ;
-    :seAplicaA :WLD_USDT ;
-    :timestampValor "2025-05-29T22:14:58.045760+00:00"^^xsd:dateTime ;
-    :valorNumerico 3.795967360149227 .
+    :timestampValor "2025-05-29T22:18:25.865924+00:00"^^xsd:dateTime ;
+    :valorNumerico 55.35489412540648 .
 
 :ValorSMA20_WLD_Actual a :ValorIndicador ;
     :esValorDe :ConfigSMA20 ;
@@ -335,6 +338,13 @@
     :referenteA :WLD_USDT ;
     :tipoSENAL "RSI_NEUTRAL_BAJO" .
 
+:Senal_WLD_USDT_PRECIO_BAJO_SMA20_20250529221825914196_e431 a :SenalTecnica ;
+    :descripcionSenal "Precio actual (3.7995) está por debajo de SMA20 (3.8008) para WLD_USDT." ;
+    :fechaSenal "2025-05-29T22:18:25.865924+00:00"^^xsd:dateTime ;
+    :generadaPorIndicador :ValorInd_WLD_USDT_ConfigSMA20_20250529221825866945_a58f ;
+    :referenteA :WLD_USDT ;
+    :tipoSENAL "PRECIO_BAJO_SMA20" .
+
 :TipoBandasBollinger a :TipoIndicadorTecnico ;
     rdfs:label "Bollinger Bands" .
 
@@ -343,6 +353,12 @@
 
 :TipoRSI a :TipoIndicadorTecnico ;
     rdfs:label "Relative Strength Index (RSI)" .
+
+:ValorInd_WLD_USDT_ConfigSMA20_20250529221825866945_a58f a :ValorIndicador ;
+    :esValorDe :ConfigSMA20 ;
+    :seAplicaA :WLD_USDT ;
+    :timestampValor "2025-05-29T22:18:25.865924+00:00"^^xsd:dateTime ;
+    :valorNumerico 3.800817678029682 .
 
 :ValorMACD_WLD_Actual a :ValorIndicador ;
     :esValorDe :ConfigMACD12_26_9 ;
@@ -370,16 +386,6 @@
 
 :AgenteSenalesTrading a owl:Class ;
     rdfs:subClassOf :Agente .
-
-:EstrategiaPredeterminada a :Estrategia ;
-    :horizonteTemporal "CORTO_PLAZO" ;
-    :monitoreaPar :WLD_USDT ;
-    :nivelRiesgoPreferido "MEDIO" ;
-    :nombreEstrategia "Estrategia Conservadora WLD" ;
-    :utilizaConfigIndicador :ConfigBB20_2,
-        :ConfigMACD12_26_9,
-        :ConfigRSI14,
-        :ConfigSMA20 .
 
 :TipoSMA a :TipoIndicadorTecnico ;
     rdfs:label "Simple Moving Average (SMA)" .
@@ -413,6 +419,16 @@
     :periodoIndicador 20 ;
     :tieneTipoBase :TipoSMA .
 
+:EstrategiaPredeterminada a :Estrategia ;
+    :horizonteTemporal "CORTO_PLAZO" ;
+    :monitoreaPar :WLD_USDT ;
+    :nivelRiesgoPreferido "MEDIO" ;
+    :nombreEstrategia "Estrategia Conservadora WLD" ;
+    :utilizaConfigIndicador :ConfigBB20_2,
+        :ConfigMACD12_26_9,
+        :ConfigRSI14,
+        :ConfigSMA20 .
+
 :SentimientoMercado a owl:Class .
 
 :EventoNoticia a owl:Class .
@@ -424,17 +440,17 @@
 
 :Estrategia a owl:Class .
 
-:SenalTecnica a owl:Class .
-
 :ParMercado a owl:Class .
 
+:SenalTecnica a owl:Class .
+
+:IndicadorTecnicoConfig a owl:Class .
+
 :WLD_USDT a :ParMercado ;
-    :precioActual 3.915701864141906 ;
+    :precioActual 3.799478510204066 ;
     :tieneActivoBase :WLD ;
     :tieneActivoCotizacion :USDT ;
     :volumen24h 15000000.00 .
-
-:IndicadorTecnicoConfig a owl:Class .
 
 :RecomendacionTrading a owl:Class .
 
