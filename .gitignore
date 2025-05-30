@@ -48,3 +48,5 @@ wheels/
 *.swp
 *~.nib
 local.properties 
+
+datos_trading/datos_actualizados.ttl
