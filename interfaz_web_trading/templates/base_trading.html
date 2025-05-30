@@ -29,7 +29,7 @@
                            href="{{ url_for('dashboard_par', par_mercado_id_local='WLD_USDT') }}">Dashboard WLD/USDT</a>
                     </li>
                 </ul>
-                <form class="d-flex" method="post" action="{{ url_for('ejecutar_ciclo_agente', par_mercado='WLD_USDT') }}">
+                <form class="d-flex" method="post" action="{{ url_for('ejecutar_ciclo_agente', par_mercado_id_local='WLD_USDT') }}">
                     <button class="btn btn-info btn-sm" type="submit">Ejecutar Ciclo de Análisis WLD</button>
                 </form>
             </div>
