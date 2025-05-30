@@ -36,7 +36,7 @@
     :tieneTipoBase :TipoMACD ;
     :periodoCorto "12"^^xsd:integer ;
     :periodoLargo "26"^^xsd:integer ;
-    :periodoSenal "9"^^xsd:integer .
+    :periodoseñal "9"^^xsd:integer .
 
 :ConfigBB20_2 rdf:type :IndicadorTecnicoConfig;
     :nombreConfigIndicador "Bandas de Bollinger (20, 2)";
@@ -84,7 +84,7 @@
 :AgenteEstrategiaPrincipal rdf:type :AgentePerfilEstrategia ;
     :configuraEstrategia :EstrategiaPredeterminada .
 
-:AgenteSenalesPrincipal rdf:type :AgenteSenalesTrading .
+:AgenteseñalesPrincipal rdf:type :AgenteseñalesTrading .
 
 # --- Valores de Indicadores de Ejemplo para WLD_USDT (simulados) ---
 # Puedes dejar estos o quitarlos si quieres que el primer ciclo los genere siempre.
@@ -107,7 +107,7 @@
     :esValorDe :ConfigMACD12_26_9;
     :seAplicaA :WLD_USDT;
     :valorMACD "-0.05"^^xsd:decimal;
-    :valorSenalMACD "-0.08"^^xsd:decimal; 
+    :valorseñalMACD "-0.08"^^xsd:decimal; 
     :valorHistogramaMACD "0.03"^^xsd:decimal;
     :timestampValor "2025-05-29T10:00:00Z"^^xsd:dateTime.
 
@@ -121,8 +121,8 @@
 
 # --- Señales Técnicas de Ejemplo (inferidas de los valores anteriores) ---
 # También quitaremos estas para que se generen en el primer ciclo.
-# :SenalRSI_WLD_1 rdf:type :SenalTecnica ; ...
-# :SenalMACD_WLD_1 rdf:type :SenalTecnica ; ...
+# :señalRSI_WLD_1 rdf:type :señalTecnica ; ...
+# :señalMACD_WLD_1 rdf:type :señalTecnica ; ...
 
 # --- Recomendación de Trading de Ejemplo ---
 # ELIMINADA para que el dashboard comience sin recomendación.
