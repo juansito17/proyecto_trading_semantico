@@ -68,32 +68,32 @@ def calcular_rsi(series: pd.Series, periodo: int = RSI_DEFAULT_PERIOD) -> float 
 def calcular_macd(series: pd.Series, 
                   periodo_corto: int = MACD_DEFAULT_FAST, 
                   periodo_largo: int = MACD_DEFAULT_SLOW, 
-                  periodo_senal: int = MACD_DEFAULT_SIGNAL) -> dict | None:
+                  periodo_señal: int = MACD_DEFAULT_SIGNAL) -> dict | None:
     """
     Calcula la Convergencia/Divergencia de Medias Móviles (MACD).
-    Devuelve un diccionario con 'macd', 'senal', 'histograma' (últimos valores).
+    Devuelve un diccionario con 'macd', 'señal', 'histograma' (últimos valores).
     """
     if not isinstance(series, pd.Series):
         print("Error en calcular_macd: la entrada 'series' debe ser un pd.Series.")
         return None
-    if series.empty or len(series) < periodo_largo + periodo_senal: # Aproximación de datos necesarios
-        # print(f"Datos insuficientes para MACD({periodo_corto},{periodo_largo},{periodo_senal}).")
+    if series.empty or len(series) < periodo_largo + periodo_señal: # Aproximación de datos necesarios
+        # print(f"Datos insuficientes para MACD({periodo_corto},{periodo_largo},{periodo_señal}).")
         return None
     try:
         ema_corto = series.ewm(span=periodo_corto, adjust=False).mean()
         ema_largo = series.ewm(span=periodo_largo, adjust=False).mean()
         
         macd_line = ema_corto - ema_largo
-        senal_line = macd_line.ewm(span=periodo_senal, adjust=False).mean()
-        histograma = macd_line - senal_line
+        señal_line = macd_line.ewm(span=periodo_señal, adjust=False).mean()
+        histograma = macd_line - señal_line
         
         last_macd = macd_line.iloc[-1]
-        last_senal = senal_line.iloc[-1]
+        last_señal = señal_line.iloc[-1]
         last_hist = histograma.iloc[-1]
 
         return {
             "macd": float(last_macd) if pd.notna(last_macd) else None,
-            "senal": float(last_senal) if pd.notna(last_senal) else None,
+            "señal": float(last_señal) if pd.notna(last_señal) else None,
             "histograma": float(last_hist) if pd.notna(last_hist) else None,
         }
     except Exception as e:
@@ -227,7 +227,7 @@ if __name__ == '__main__':
     # MACD
     macd_data = calcular_macd(datos_cierre_ejemplo)
     if macd_data:
-        print(f"\nMACD: Línea={macd_data['macd']:.2f}, Señal={macd_data['senal']:.2f}, Histograma={macd_data['histograma']:.2f}")
+        print(f"\nMACD: Línea={macd_data['macd']:.2f}, Señal={macd_data['señal']:.2f}, Histograma={macd_data['histograma']:.2f}")
     else:
         print("\nMACD: N/A")
 

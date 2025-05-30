@@ -10,7 +10,7 @@ if project_root_dir not in sys.path:
 
 from rdf_utils.rdf_manager_trading import RDFManagerTrading
 from agentes.agente_perfil_estrategia import AgentePerfilEstrategia
-from agentes.agente_senales_trading import AgenteSenalesTrading
+from agentes.agente_señales_trading import AgenteseñalesTrading
 from rdflib.namespace import RDF, XSD 
 
 app = Flask(__name__, template_folder='templates', static_folder='../static_trading') 
@@ -27,13 +27,13 @@ try:
         persist_path=DATOS_PERSIST_PATH
     )
     agente_estrategia = AgentePerfilEstrategia(rdf_manager)
-    agente_senales = AgenteSenalesTrading(rdf_manager, agente_estrategia)
+    agente_señales = AgenteseñalesTrading(rdf_manager, agente_estrategia)
     print("RDFManager y agentes inicializados correctamente para Flask.")
 except Exception as e:
     print(f"Error fatal durante la inicialización de RDF/Agentes en Flask: {e}")
     rdf_manager = None
     agente_estrategia = None
-    agente_senales = None
+    agente_señales = None
 
 PARES_MERCADO_DEMO = {
     "WLD_USDT": "WLD/USDT"
@@ -54,7 +54,7 @@ def index_redirect():
 @app.route('/dashboard/')
 @app.route('/dashboard/<par_mercado_id_local>')
 def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
-    if not rdf_manager or not agente_senales:
+    if not rdf_manager or not agente_señales:
         flash("Error: El sistema de análisis no está disponible.", "danger")
         return render_template('error_page_trading.html', mensaje="Error de inicialización del sistema.")
 
@@ -93,7 +93,7 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
         PREFIX trade: <{rdf_manager.ns_manager.trade}>
         PREFIX rdf: <{RDF}>
         PREFIX xsd: <{XSD}>
-        SELECT ?configNombre ?valorNum ?valorMACD ?valorSenalMACD ?valorHistMACD 
+        SELECT ?configNombre ?valorNum ?valorMACD ?valorseñalMACD ?valorHistMACD 
                ?valorBandaMedia ?valorBandaSuperior ?valorBandaInferior ?ts
         WHERE {{
             ?valorIndInst rdf:type trade:ValorIndicador ;
@@ -104,7 +104,7 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
             
             OPTIONAL {{ ?valorIndInst trade:valorNumerico ?valorNum . }}
             OPTIONAL {{ ?valorIndInst trade:valorMACD ?valorMACD . }}
-            OPTIONAL {{ ?valorIndInst trade:valorSenalMACD ?valorSenalMACD . }}
+            OPTIONAL {{ ?valorIndInst trade:valorseñalMACD ?valorseñalMACD . }}
             OPTIONAL {{ ?valorIndInst trade:valorHistogramaMACD ?valorHistMACD . }}
             OPTIONAL {{ ?valorIndInst trade:valorBandaMedia ?valorBandaMedia . }}
             OPTIONAL {{ ?valorIndInst trade:valorBandaSuperior ?valorBandaSuperior . }}
@@ -123,8 +123,8 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
                     indicador_display["valores"].append(f"Valor: {float(fila_ind['valorNum']):.4f}")
                 if fila_ind.get("valorMACD") is not None:
                     indicador_display["valores"].append(f"MACD: {float(fila_ind['valorMACD']):.4f}")
-                if fila_ind.get("valorSenalMACD") is not None:
-                    indicador_display["valores"].append(f"Señal MACD: {float(fila_ind['valorSenalMACD']):.4f}")
+                if fila_ind.get("valorseñalMACD") is not None:
+                    indicador_display["valores"].append(f"Señal MACD: {float(fila_ind['valorseñalMACD']):.4f}")
                 if fila_ind.get("valorHistMACD") is not None:
                     indicador_display["valores"].append(f"Hist. MACD: {float(fila_ind['valorHistMACD']):.4f}")
                 if fila_ind.get("valorBandaMedia") is not None:
@@ -142,7 +142,7 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
         PREFIX trade: <{rdf_manager.ns_manager.trade}>
         PREFIX rdf: <{RDF}>
         SELECT ?recomInst ?accion ?justificacion ?confianza ?ts 
-               (COALESCE(GROUP_CONCAT(DISTINCT ?desc; separator="; "), "N/A") AS ?senalesDetalle)
+               (COALESCE(GROUP_CONCAT(DISTINCT ?desc; separator="; "), "N/A") AS ?señalesDetalle)
         WHERE {{
             ?recomInst rdf:type trade:RecomendacionTrading ;
                        trade:paraActivo <{par_mercado_uri}> ;
@@ -152,8 +152,8 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
                        trade:timestampRecomendacion ?ts .
             
             OPTIONAL {{
-                ?recomInst trade:basadaEnSenal ?s .
-                ?s trade:descripcionSenal ?desc .
+                ?recomInst trade:basadaEnseñal ?s .
+                ?s trade:descripcionseñal ?desc .
             }}
         }}
         GROUP BY ?recomInst ?accion ?justificacion ?confianza ?ts 
@@ -171,14 +171,14 @@ def dashboard_par(par_mercado_id_local=DEFAULT_PAR_MERCADO_ID):
                 "justificacion": str(fila_recom["justificacion"]),
                 "confianza": f"{float(fila_recom['confianza']):.2%}" if fila_recom.get("confianza") else "N/A",
                 "timestamp": str(fila_recom["ts"]),
-                "senales_base": str(fila_recom.get("senalesDetalle", "N/A")) 
+                "señales_base": str(fila_recom.get("señalesDetalle", "N/A")) 
             }
 
     return render_template('dashboard_trading.html', data=datos_dashboard, par_mercado_actual_id_for_page=par_mercado_id_local)
 
 @app.route('/ejecutar_ciclo', methods=['POST'])
 def ejecutar_ciclo_agente():
-    if not agente_senales or not agente_estrategia: 
+    if not agente_señales or not agente_estrategia: 
         flash("Error: Los agentes de análisis o estrategia no están disponibles.", "danger")
         return redirect(request.referrer or url_for('index_redirect'))
 
@@ -208,7 +208,7 @@ def ejecutar_ciclo_agente():
 
         try:
             print(f"Ejecutando ciclo de análisis para la estrategia: {nombre_estrategia_a_ejecutar}")
-            agente_senales.ejecutar_ciclo_analisis(nombre_estrategia_a_ejecutar)
+            agente_señales.ejecutar_ciclo_analisis(nombre_estrategia_a_ejecutar)
             flash(f"Ciclo de análisis ejecutado para {PARES_MERCADO_DEMO.get(par_id_actual, par_id_actual)} usando estrategia '{nombre_estrategia_a_ejecutar}'.", "success")
         except Exception as e:
             flash(f"Error al ejecutar el ciclo de análisis: {e}", "danger")
