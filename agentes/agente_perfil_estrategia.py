@@ -201,13 +201,13 @@ if __name__ == '__main__':
             print("No se pudo cargar la EstrategiaPredeterminada. Revisa los DEBUG prints y el archivo datos_trading_muestra.ttl")
 
         print("\n--- Definiendo una nueva estrategia (o actualizando si ya existe) ---")
-        nombre_nueva_estrategia_local = "MiEstrategiaAgresivaBTC"
+        nombre_nueva_estrategia_local = "MiEstrategiaAgresivaWLD"
         uris_indicadores_para_nueva_estrategia = ["ConfigRSI14", "ConfigMACD12_26_9"]
         
         agente_estrategia.definir_o_actualizar_estrategia(
             nombre_estrategia_local=nombre_nueva_estrategia_local,
-            nombre_display_estrategia="Estrategia Agresiva para Bitcoin",
-            par_mercado_local="BTC_USDT", 
+            nombre_display_estrategia="Estrategia Agresiva para Worldcoin",
+            par_mercado_local="WLD_USDT", 
             uris_config_indicadores=uris_indicadores_para_nueva_estrategia, 
             nivel_riesgo="ALTO",
             horizonte_temporal="CORTO_PLAZO"
@@ -215,14 +215,14 @@ if __name__ == '__main__':
         
         print(f"\n--- Contenido del grafo después de definir nueva estrategia ({len(manager.graph)} tripletas) ---")
 
-        print("\n--- Verificando :MiEstrategiaAgresivaBTC en el grafo ---")
+        print("\n--- Verificando :MiEstrategiaAgresivaWLD en el grafo ---")
         q_check_nueva = f"""
             PREFIX trade: <{manager.ns_manager.trade}>
             PREFIX rdf: <{RDF}>
-            ASK {{ <{manager.ns_manager.trade.MiEstrategiaAgresivaBTC}> rdf:type trade:Estrategia . }}
+            ASK {{ <{manager.ns_manager.trade.MiEstrategiaAgresivaWLD}> rdf:type trade:Estrategia . }}
             """
         res_check_nueva = manager.ejecutar_sparql(q_check_nueva)
-        print(f":MiEstrategiaAgresivaBTC existe como tipo Estrategia: {list(res_check_nueva)[0] if res_check_nueva else 'Error ASK'}")
+        print(f":MiEstrategiaAgresivaWLD existe como tipo Estrategia: {list(res_check_nueva)[0] if res_check_nueva else 'Error ASK'}")
 
         print(f"\n--- Obteniendo la nueva estrategia '{nombre_nueva_estrategia_local}' ---")
         nueva_estrategia_obtenida = agente_estrategia.obtener_estrategia_activa(nombre_nueva_estrategia_local)
